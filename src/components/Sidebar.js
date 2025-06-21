@@ -15,7 +15,7 @@ import {
 } from "react-icons/fa";
 import styled from "styled-components";
 import directusClient from "../api/directusClient";
-import { ROLE_ADMIN, ROLE_OFFICER, ROLE_GUEST } from "../api/roles.js";
+import { ROLE_RES_ADMIN, ROLE_CUSTOMER, ROLE_GUEST } from "../api/roles.js";
 import { useTranslation } from "react-i18next";
 
 const SidebarContainer = styled(Nav)`
@@ -110,61 +110,61 @@ const Sidebar = ({ role }) => {
     {
       name: "Dashboard",
       path: "/dashboard",
-      roles: [ROLE_ADMIN, ROLE_GUEST],
+      roles: [ROLE_RES_ADMIN, ROLE_GUEST],
       icon: <FaHome />,
     },
     {
       name: "Drivers",
       path: "/drivers",
-      roles: [ROLE_ADMIN],
+      roles: [ROLE_RES_ADMIN],
       icon: <FaUser />,
     },
     {
       name: "Conductors",
       path: "/conductors",
-      roles: [ROLE_ADMIN],
+      roles: [ROLE_RES_ADMIN],
       icon: <FaUsers />,
     },
     {
       name: "Daily Routes",
       path: "/daily-route",
-      roles: [ROLE_ADMIN],
+      roles: [ROLE_RES_ADMIN],
       icon: <FaFileAlt />,
     },
     {
       name: "Payments",
       path: "/payments",
-      roles: [ROLE_ADMIN],
+      roles: [ROLE_RES_ADMIN],
       icon: <FaMoneyBillWave />,
     },
     {
       name: "Reports",
       path: "/reports",
-      roles: [ROLE_ADMIN],
+      roles: [ROLE_RES_ADMIN],
       icon: <FaChartBar />,
     },
     {
       name: "Co-Monitor",
       path: "/co-monitor",
-      roles: [ROLE_ADMIN],
+      roles: [ROLE_RES_ADMIN],
       icon: <FaChalkboardTeacher />,
     },
     {
       name: "Dr-Monitor",
       path: "/dr-monitor",
-      roles: [ROLE_ADMIN],
+      roles: [ROLE_RES_ADMIN],
       icon: <FaChalkboardTeacher />,
     },
     {
       name: "Profile",
       path: "/profile",
-      roles: [ROLE_ADMIN, ROLE_OFFICER],
+      roles: [ROLE_RES_ADMIN, ROLE_CUSTOMER],
       icon: <FaUser />,
     },
     {
       name: "Logout",
       path: "/",
-      roles: [ROLE_ADMIN, ROLE_OFFICER],
+      roles: [ROLE_RES_ADMIN, ROLE_CUSTOMER],
       icon: <FaSignOutAlt />,
     },
   ];

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import directusClient from "../../api/directusClient";
 import { Container, Row, Col, Form, Button, Alert } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
-import { ROLE_ADMIN, ROLE_OFFICER } from "../../api/roles";
+import { ROLE_CUSTOMER, ROLE_SUPER_ADMIN, ROLE_RES_ADMIN } from "../../api/roles";
 import styled from "styled-components";
 import loginbg from "../../images/loginbg.png"
 
@@ -81,9 +81,9 @@ const Login = () => {
       localStorage.setItem("name", user.first_name + " " + user.last_name);
 
       const userRole = localStorage.getItem("user_role") || "guest";
-      if (userRole === ROLE_ADMIN) {
+      if (userRole === ROLE_SUPER_ADMIN || userRole === ROLE_RES_ADMIN) {
         navigate("/dashboard");
-      } else if (userRole === ROLE_OFFICER) {
+      } else if (userRole === ROLE_CUSTOMER) {
         navigate("/orders");
       }
     } catch (err) {
@@ -101,7 +101,7 @@ const Login = () => {
       <LoginRow>
         <ImageWrapper />
         <FormCol md={6}>
-        <LoginTitle>ROUTE TRACKING SYSTEM - Login</LoginTitle>
+        <LoginTitle>ABC SYSTEM - Login</LoginTitle>
           <Form onSubmit={handleLogin}>
             <Form.Group className="mb-3">
               <Form.Label>{t("login.email")}</Form.Label>
@@ -141,11 +141,11 @@ const Login = () => {
      style={{ backgroundColor: "#1976d2" }}
    >
      <div className="text-white mb-3 mb-md-0">
-       <strong>ROUTE TRACKING SYSTEM</strong>
+       <strong>ABC SYSTEM</strong>
        <br />
-       <em>Effortlessly track and manage your vehicle routes.</em>
+       <em>BBB</em>
        <br />
-       METADEW TECHNOLOGIES | 071 733 6065 | Copyright © 2024. All rights
+       AAA | 0702534588 | Copyright © 2024. All rights
        reserved.
      </div>
    </div>
