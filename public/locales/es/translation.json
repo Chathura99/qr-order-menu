@@ -1,0 +1,41 @@
+{
+  "common": {
+    "comingSoon": "Coming Soon(es)!",
+    "contactUs": "Contact Us"
+  },
+  "profile": {
+    "title": "My Profile",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "reports": "Reports",
+    "profile": "Profile",
+    "logout": "Logout",
+    "language": "Change Language",
+    "login" : "Login",
+    "register" : "Register",
+    "about" : "About Us",
+    "home" : "Home"
+  },
+  "home": {
+    "loginButton": "Login Now",
+    "aboutButton": "About Us"
+  },
+  "login": {
+    "title": "Login",
+    "email": "Email Address",
+    "emailPlaceholder": "Enter your email",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "submit": "Login",
+    "goHome": "Go to Homepage",
+    "error": "Invalid login credentials"
+  }
+  }

@@ -1,0 +1,2 @@
+export const TEST_FLOW_SUCCESS = '8eb42d6e-a0c5-4602-af79-770c28491d43';
+export const TEST_FLOW_ERROR = 'c28d913e-6478-45c7-8712-2a5dd5e99c69';

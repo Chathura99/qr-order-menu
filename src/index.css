@@ -1,0 +1,14 @@
+body {
+  margin: 0;
+  font-family: 'PT Serif', serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: 'IBM Plex Sans', sans-serif !important;
+}
+
+
+@import "~slick-carousel/slick/slick.css";
+@import "~slick-carousel/slick/slick-theme.css";
