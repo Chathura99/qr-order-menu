@@ -16,7 +16,7 @@ const App = () => {
         <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
 
-        <Route path="/drivers" element={<Driver/>} />
+        <Route path="/menu-items" element={<ComingSoon />} />
         <Route
           path="/conductors"
           element={<ComingSoon featureName="Conductor" />}
@@ -30,14 +30,7 @@ const App = () => {
           path="/payments"
           element={<ComingSoon featureName="Payment" />}
         />
-        <Route
-          path="/co-monitor"
-          element={<ComingSoon featureName="Conductor Monitor" />}
-        />
-        <Route
-          path="/dr-monitor"
-          element={<ComingSoon featureName="Driver Monitor" />}
-        />
+
         <Route path="/profile" element={<Profile />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

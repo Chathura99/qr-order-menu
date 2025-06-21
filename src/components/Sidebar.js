@@ -153,28 +153,10 @@ const Sidebar = ({ role }) => {
       icon: <FaChartBar />,
     },
     {
-      name: "Live Orders", // Replaces "Co-Monitor"
-      path: "/live-orders",
-      roles: [
-        ROLE_RES_ADMIN,
-        ROLE_SUPER_ADMIN,
-        ,
-        ,
-      ],
-      icon: <FaClipboardList />,
-    },
-    {
       name: "Table Management", // Replaces "Dr-Monitor"
       path: "/table-management",
       roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN, ],
       icon: <FaChair />,
-    },
-    // You might add more specific restaurant-related items
-    {
-      name: "Reservations",
-      path: "/reservations",
-      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN, ],
-      icon: <FaChair />, // Or a calendar icon
     },
     {
       name: "Profile",
