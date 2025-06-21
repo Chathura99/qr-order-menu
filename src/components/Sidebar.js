@@ -7,15 +7,24 @@ import {
   FaUser,
   FaFileAlt,
   FaChartBar,
-  FaMoneyBillWave,
   FaUsers,
   FaChalkboardTeacher,
   FaSignOutAlt,
   FaGlobe,
+  FaUtensils, // For menu items/dishes
+  FaMoneyBillWave,
+  FaClipboardList, // For order tracking
+  FaConciergeBell, // For waitstaff/servers
+  FaChair,
 } from "react-icons/fa";
 import styled from "styled-components";
 import directusClient from "../api/directusClient";
-import { ROLE_RES_ADMIN, ROLE_CUSTOMER, ROLE_GUEST } from "../api/roles.js";
+import {
+  ROLE_RES_ADMIN,
+  ROLE_CUSTOMER,
+  ROLE_GUEST,
+  ROLE_SUPER_ADMIN,
+} from "../api/roles.js";
 import { useTranslation } from "react-i18next";
 
 const SidebarContainer = styled(Nav)`
@@ -110,61 +119,73 @@ const Sidebar = ({ role }) => {
     {
       name: "Dashboard",
       path: "/dashboard",
-      roles: [ROLE_RES_ADMIN, ROLE_GUEST],
+      roles: [ROLE_RES_ADMIN, ROLE_GUEST, ROLE_SUPER_ADMIN],
       icon: <FaHome />,
     },
     {
-      name: "Drivers",
-      path: "/drivers",
-      roles: [ROLE_RES_ADMIN],
+      name: "Kitchen Staff", // Replaces "Drivers"
+      path: "/kitchen-staff",
+      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
       icon: <FaUser />,
     },
     {
-      name: "Conductors",
-      path: "/conductors",
-      roles: [ROLE_RES_ADMIN],
-      icon: <FaUsers />,
+      name: "Waitstaff", // Replaces "Conductors"
+      path: "/waitstaff",
+      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
+      icon: <FaConciergeBell />,
     },
     {
-      name: "Daily Routes",
-      path: "/daily-route",
-      roles: [ROLE_RES_ADMIN],
-      icon: <FaFileAlt />,
+      name: "Menu Items", // Replaces "Daily Routes"
+      path: "/menu-items",
+      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
+      icon: <FaUtensils />,
     },
     {
       name: "Payments",
       path: "/payments",
-      roles: [ROLE_RES_ADMIN],
+      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN, ], // Waiters might also handle payments
       icon: <FaMoneyBillWave />,
     },
     {
       name: "Reports",
       path: "/reports",
-      roles: [ROLE_RES_ADMIN],
+      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
       icon: <FaChartBar />,
     },
     {
-      name: "Co-Monitor",
-      path: "/co-monitor",
-      roles: [ROLE_RES_ADMIN],
-      icon: <FaChalkboardTeacher />,
+      name: "Live Orders", // Replaces "Co-Monitor"
+      path: "/live-orders",
+      roles: [
+        ROLE_RES_ADMIN,
+        ROLE_SUPER_ADMIN,
+        ,
+        ,
+      ],
+      icon: <FaClipboardList />,
     },
     {
-      name: "Dr-Monitor",
-      path: "/dr-monitor",
-      roles: [ROLE_RES_ADMIN],
-      icon: <FaChalkboardTeacher />,
+      name: "Table Management", // Replaces "Dr-Monitor"
+      path: "/table-management",
+      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN, ],
+      icon: <FaChair />,
+    },
+    // You might add more specific restaurant-related items
+    {
+      name: "Reservations",
+      path: "/reservations",
+      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN, ],
+      icon: <FaChair />, // Or a calendar icon
     },
     {
       name: "Profile",
       path: "/profile",
-      roles: [ROLE_RES_ADMIN, ROLE_CUSTOMER],
+      roles: [ROLE_RES_ADMIN, ROLE_CUSTOMER, ROLE_SUPER_ADMIN],
       icon: <FaUser />,
     },
     {
       name: "Logout",
       path: "/",
-      roles: [ROLE_RES_ADMIN, ROLE_CUSTOMER],
+      roles: [ROLE_RES_ADMIN, ROLE_CUSTOMER, ROLE_SUPER_ADMIN],
       icon: <FaSignOutAlt />,
     },
   ];
@@ -185,7 +206,7 @@ const Sidebar = ({ role }) => {
 
   return (
     <SidebarContainer>
-      <SidebarHeader>HPL TRAVELS</SidebarHeader>
+      <SidebarHeader>ABC</SidebarHeader>
       {sidebarItems
         .filter((item) => item.roles.includes(role))
         .map((item) =>

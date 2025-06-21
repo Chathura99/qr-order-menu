@@ -29,7 +29,8 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       MARKETPLACE_TRUST: ${MARKETPLACE_TRUST}
       EXTENSIONS_AUTO_RELOAD: ${EXTENSIONS_AUTO_RELOAD}
-      CORS_ORIGIN: 'http://127.0.0.1:3000'
+      CORS_ENABLED: true
+      CORS_ORIGIN: http://localhost:3000
     depends_on: # Added dependency on database
       - database
 
