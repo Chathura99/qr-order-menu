@@ -1,0 +1,43 @@
+version: "3"
+services:
+  database:
+    image: postgres:15 # Changed to PostgreSQL image
+    volumes:
+      - ./data/database:/var/lib/postgresql/data # PostgreSQL data volume
+    environment:
+      POSTGRES_ROOT_PASSWORD: ${POSTGRES_ROOT_PASSWORD} # Changed root password variable
+      POSTGRES_DB: ${POSTGRES_DB} # Changed database name variable
+      POSTGRES_USER: ${POSTGRES_USER} # Changed user variable
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} # Changed password variable
+
+  directus:
+    image: directus/directus:11.7.2
+    ports:
+      - 8055:8055
+    volumes:
+      - ./uploads:/directus/uploads
+      - ./extensions:/directus/extensions
+    environment:
+      DB_CLIENT: ${DB_CLIENT}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SECRET: ${SECRET}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      MARKETPLACE_TRUST: ${MARKETPLACE_TRUST}
+      EXTENSIONS_AUTO_RELOAD: ${EXTENSIONS_AUTO_RELOAD}
+    depends_on: # Added dependency on database
+      - database
+
+  pgadmin: # Changed service name to pgadmin
+    image: dpage/pgadmin4 # Changed to pgAdmin image
+    ports:
+      - 8080:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL} # pgAdmin login email
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD} # pgAdmin login password
+    depends_on: # Added dependency on database
+      - database
