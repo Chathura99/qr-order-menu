@@ -7,6 +7,7 @@ const Dashboard = () => {
   const userRole = localStorage.getItem("user_role") || "guest";
   const [showOrderForm, setShowOrderForm] = useState(false);
 
+  
   const sampleOrders = [
     {
       orderId: "ORD001",
@@ -33,6 +34,22 @@ const Dashboard = () => {
       timestamp: "2025-06-21 09:45 AM",
     },
     {
+      orderId: "ORD004",
+      customerName: "Diana Prince",
+      items: "Sandwich, Soup",
+      total: "$12.00",
+      status: "Pending",
+      timestamp: "2025-06-21 10:30 AM",
+    },
+     {
+      orderId: "ORD004",
+      customerName: "Diana Prince",
+      items: "Sandwich, Soup",
+      total: "$12.00",
+      status: "Pending",
+      timestamp: "2025-06-21 10:30 AM",
+    },
+     {
       orderId: "ORD004",
       customerName: "Diana Prince",
       items: "Sandwich, Soup",
