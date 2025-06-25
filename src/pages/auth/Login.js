@@ -75,6 +75,7 @@ const Login = () => {
         "Authorization"
       ] = `Bearer ${access_token}`;
 
+
       const userResponse = await directusClient.get("/users/me");
       const user = userResponse.data.data;
       localStorage.setItem("user_role", user.role);
@@ -94,6 +95,7 @@ const Login = () => {
   // const handleGoHome = () => {
   //   navigate("/"); // Navigate to home page
   // };
+
 
   return (
     <>
@@ -133,7 +135,6 @@ const Login = () => {
           </Form>
         </FormCol>
       </LoginRow>
-      
     </LoginContainer>
      {/* Footer */}
      <div
