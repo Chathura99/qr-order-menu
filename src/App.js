@@ -9,6 +9,7 @@ import Profile from "./pages/auth/Profile";
 import Login from "./pages/auth/Login";
 import PendingOrders from "./pages/orders/PendingOrders";
 import InprogressOrders from "./pages/orders/InprogressOrders";
+import QRCodePage from "./pages/qrcodepage/QRCodePage";
 
 const App = () => {
   return (
@@ -18,7 +19,8 @@ const App = () => {
         <Route path="/dashboard" element={<Dashboard />} />
 
         <Route path="/p-orders" element={<PendingOrders />} />
-             <Route path="/i-orders" element={<InprogressOrders />} />
+        <Route path="/i-orders" element={<InprogressOrders />} />
+        <Route path="/qr/:qr_prefix" element={<QRCodePage />} />
 
         <Route path="/reports" element={<ComingSoon featureName="Report" />} />
 
