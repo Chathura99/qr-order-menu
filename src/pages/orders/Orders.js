@@ -13,7 +13,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "../../components/Sidebar"; // Replace with your Sidebar component
 import DataTable from "../../components/DataTable"; // Replace with your DataTable component
-import BurgerSpinner from "../../components/BurgerSpinner"
+import BurgerSpinner from "../../components/BurgerSpinner";
 import { apiRequest } from "../../hooks/apiRequest"; // Replace with your API hook
 import { ORDER_ENDPOINT, FILE_UPLOAD_ENDPOINT } from "../../api/endpoints"; // Replace with your API endpoint
 import { useNavigate } from "react-router-dom";
@@ -26,6 +26,7 @@ const Orders = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [statusUpdating, setStatusUpdating] = useState(false);
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const userRole = localStorage.getItem("user_role") || "";
@@ -56,7 +57,7 @@ const Orders = () => {
       setLoading(true);
       try {
         const response = await apiRequest(
-          `${ORDER_ENDPOINT}?filter[_or][0][status][_eq]=${"pending"}&filter[_or][1][status][_eq]=${"inprogress"}`
+          `${ORDER_ENDPOINT}?filter[_or][0][status][_eq]=pending&fields=*,table.*,table.branch.*`
         );
         setStudentReviews(response.data);
         setLoading(false);
@@ -77,11 +78,31 @@ const Orders = () => {
     setShowModal(true);
   };
 
+  // PATCH order status to inprogress
+  const handleStatusChange = async () => {
+    if (!selectedOrder) return;
+    setStatusUpdating(true);
+    try {
+      await apiRequest(`${ORDER_ENDPOINT}/${selectedOrder.id}`, "PATCH", {
+        status: "inprogress",
+      });
+      toast.success("Order status updated to inprogress.");
+      // Update UI: remove from list and close modal
+      setStudentReviews((prev) =>
+        prev.filter((order) => order.id !== selectedOrder.id)
+      );
+      setShowModal(false);
+      setSelectedOrder(null);
+    } catch (error) {
+      toast.error("Failed to update order status.");
+    } finally {
+      setStatusUpdating(false);
+    }
+  };
+
   // DataTable columns
   const columns = [
     { Header: "ID", accessor: "id" },
-    { Header: "Type", accessor: "type" },
-    { Header: "Number(Room/Table)", accessor: "number" },
     { Header: "Status", accessor: "status" },
     {
       Header: "Date Created",
@@ -108,7 +129,7 @@ const Orders = () => {
     },
   ];
 
-  if (loading) return <BurgerSpinner/>
+  if (loading) return <BurgerSpinner />;
 
   return (
     <>
@@ -135,10 +156,11 @@ const Orders = () => {
               </div>
             </Card>
 
-            <Card className="mt-3">
-              <h2 className="text-center m-3">Order List</h2>
-
-              <DataTable columns={columns} data={studentReviews} />
+            <Card className="mt-3 p-3 w-100" style={{ overflowX: "auto" }}>
+              <h2 className="text-center mb-4">Order List</h2>
+              <div style={{ width: "100%" }}>
+                <DataTable columns={columns} data={studentReviews} />
+              </div>
             </Card>
           </Col>
         </Row>
@@ -165,20 +187,7 @@ const Orders = () => {
                         <strong>Order ID:</strong> {selectedOrder.id}
                       </p>
                       <p>
-                        <strong>Type:</strong> {selectedOrder.type}
-                      </p>
-                      <p>
-                        <strong>Number (Room/Table):</strong>{" "}
-                        {selectedOrder.number}
-                      </p>
-                      <p>
                         <strong>Status:</strong> {selectedOrder.status}
-                      </p>
-                    </Col>
-                    <Col md={6}>
-                      <p>
-                        <strong>Total Price:</strong> $
-                        {selectedOrder.total_price}
                       </p>
                       <p>
                         <strong>Date Created:</strong>{" "}
@@ -191,6 +200,28 @@ const Orders = () => {
                               selectedOrder.date_updated
                             ).toLocaleString()
                           : "N/A"}
+                      </p>
+                    </Col>
+                    <Col md={6}>
+                      <h5>Customer Details</h5>
+                      <p>
+                        <strong>Name:</strong> {selectedOrder.Name || "-"}
+                      </p>
+                      <p>
+                        <strong>Mobile:</strong>{" "}
+                        {selectedOrder.Mobile_Number || "-"}
+                      </p>
+                      <p>
+                        <strong>Table Number:</strong>{" "}
+                        {selectedOrder.table?.table_number || "-"}
+                      </p>
+                      <p>
+                        <strong>Branch:</strong>{" "}
+                        {selectedOrder.table?.branch?.name || "-"}
+                      </p>
+                      <p>
+                        <strong>Branch Location:</strong>{" "}
+                        {selectedOrder.table?.branch?.location || "-"}
                       </p>
                     </Col>
                   </Row>
@@ -308,6 +339,33 @@ const Orders = () => {
                   </Card>
                 );
               })}
+
+              {/* Status change button */}
+              {selectedOrder.status === "pending" && (
+                <div className="d-flex justify-content-end">
+                  <Button
+                    variant="success"
+                    onClick={handleStatusChange}
+                    disabled={statusUpdating}
+                  >
+                    {statusUpdating ? (
+                      <>
+                        <Spinner
+                          as="span"
+                          animation="border"
+                          size="sm"
+                          role="status"
+                          aria-hidden="true"
+                          className="me-2"
+                        />
+                        Updating...
+                      </>
+                    ) : (
+                      "Mark as In Progress"
+                    )}
+                  </Button>
+                </div>
+              )}
             </>
           ) : (
             <p>No order details available.</p>
