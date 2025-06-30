@@ -57,7 +57,7 @@ const Orders = () => {
       setLoading(true);
       try {
         const response = await apiRequest(
-          `${ORDER_ENDPOINT}?filter[_or][0][status][_eq]=pending&fields=*,table.*,table.branch.*`
+          `${ORDER_ENDPOINT}?filter[_or][0][status][_eq]=pending&fields=*,table.*,table.branch.*,Menu_Items.*,Menu_Items.menu_items_id.name`
         );
         setStudentReviews(response.data);
         setLoading(false);
@@ -229,116 +229,35 @@ const Orders = () => {
               </Card>
 
               <h5 className="mb-3">Order Items</h5>
-              {selectedOrder?.order_details?.map((detail, index) => {
-                // Calculate total price for each item including add-ons
-                const calculateTotalPrice = (detail) => {
-                  const basePrice =
-                    detail.portion === "Large"
-                      ? detail.prices.large || 0
-                      : detail.prices.single || 0;
-                  const addOnsPrice = detail.add_ons.reduce((sum, addon) => {
-                    return sum + addon.price * addon.quantity;
-                  }, 0);
-                  return basePrice * detail.quantity + addOnsPrice;
-                };
 
-                const itemTotalPrice = calculateTotalPrice(detail);
-
-                return (
-                  <Card key={index} className="mb-4 shadow-sm">
-                    <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
-                      <h6 className="mb-0">{detail.item_name}</h6>
-                      <span>Total: ${itemTotalPrice.toFixed(2)}</span>
-                    </Card.Header>
+              {selectedOrder.Menu_Items?.length > 0 ? (
+                selectedOrder.Menu_Items.map((item, index) => (
+                  <Card key={index} className="mb-3 shadow-sm">
                     <Card.Body>
                       <Row>
-                        <Col md={6}>
-                          <p>
-                            <strong>Spice Level:</strong> {detail.spice_level}
-                          </p>
-                          <p>
-                            <strong>Quantity:</strong> {detail.quantity}
-                          </p>
-                          <p>
-                            <strong>Portion:</strong> {detail.portion || "N/A"}
+                        <Col md={8}>
+                          <p className="mb-1">
+                            <strong>Item:</strong>{" "}
+                            {item.menu_items_id?.name || "N/A"}
                           </p>
                         </Col>
-                        <Col md={6}>
-                          {detail.portion === "Single" && (
-                            <p>
-                              <strong>Price (Single):</strong> $
-                              {detail.prices.single}
-                            </p>
-                          )}
-                          {detail.portion === "Large" && (
-                            <p>
-                              <strong>Price (Large):</strong> $
-                              {detail.prices.large}
-                            </p>
-                          )}
-
-                          {detail.portion != "Large" &&
-                            detail.portion != "Single" && (
-                              <p>
-                                <strong>Price:</strong> ${detail.prices.single}
-                              </p>
-                            )}
+                        <Col md={4}>
+                          <p className="mb-1">
+                            <strong>Qty:</strong> {item.qty || 0}
+                          </p>
+                        </Col>
+                         <Col md={4}>
+                          <p className="mb-1">
+                            <strong>Portion:</strong> {item.portion || 'N/A'}
+                          </p>
                         </Col>
                       </Row>
-
-                      {detail.meal_items.length > 0 && (
-                        <div className="mt-3">
-                          <h6 className="bg-secondary text-white p-1">
-                            Meal Items
-                          </h6>
-                          <ul className="list-group">
-                            {detail.meal_items.map((meal, i) => (
-                              <li key={i} className="list-group-item">
-                                <strong>{meal.item_name}:</strong>{" "}
-                                {meal.options.length > 0
-                                  ? meal.options.map((option, j) => (
-                                      <span
-                                        key={j}
-                                        className={`badge mx-1 ${
-                                          option.selected
-                                            ? "bg-primary"
-                                            : "bg-secondary"
-                                        }`}
-                                      >
-                                        {option.name}
-                                      </span>
-                                    ))
-                                  : "N/A"}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      {detail.add_ons.length > 0 && (
-                        <div className="mt-3">
-                          <h6 className="bg-secondary text-white p-1">
-                            Add-Ons
-                          </h6>
-                          <ul className="list-group">
-                            {detail.add_ons
-                              .filter((addon) => addon.quantity != 0)
-                              .map((addon, j) => (
-                                <li key={j} className="list-group-item">
-                                  {addon.name} - ${addon.price} (Qty:{" "}
-                                  {addon.quantity})
-                                </li>
-                              ))}
-                            {detail.add_ons.filter(
-                              (addon) => addon.quantity !== 0
-                            ).length === 0 && "No add-ons!"}
-                          </ul>
-                        </div>
-                      )}
                     </Card.Body>
                   </Card>
-                );
-              })}
+                ))
+              ) : (
+                <p>No items found for this order.</p>
+              )}
 
               {/* Status change button */}
               {selectedOrder.status === "pending" && (
