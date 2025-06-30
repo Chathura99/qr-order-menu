@@ -1,80 +1,115 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import directusClient from "../../api/directusClient";
-import { Container, Row, Col, Form, Button, Alert } from "react-bootstrap";
+import { Container, Row, Col, Form, Button, Alert, InputGroup } from "react-bootstrap";
 import { useTranslation } from "react-i18next";
 import { ROLE_CUSTOMER, ROLE_SUPER_ADMIN, ROLE_RES_ADMIN } from "../../api/roles";
 import styled from "styled-components";
-import loginbg from "../../images/loginbg.png"
+import loginbg from "../../images/loginbg.png";
+import { FaUser, FaLock } from "react-icons/fa";
 
-// Styled components for consistency and modern design
-const LoginContainer = styled(Container)`
-  height: 85vh;
+// Container with full viewport height, background color, and flex center
+const PageWrapper = styled.div`
+  min-height: 100vh;
   display: flex;
+  background: #fff;
   justify-content: center;
   align-items: center;
+  padding: 20px;
 `;
 
-const LoginRow = styled(Row)`
+// Card with shadow, rounded corners, and responsive width
+const Card = styled.div`
+  max-width: 420px;
   width: 100%;
-  max-width: 900px; // Adjust width as needed
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  background: #fff;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  @media(min-width: 768px) {
+    flex-direction: row;
+    max-width: 800px;
+  }
 `;
 
-const ImageWrapper = styled.div`
-  background: url(${loginbg}) no-repeat center center;
-  background-size: cover;
-  width: 50%;
-  border-radius: 10px 0 0 10px;
+// Left side image, hidden on small screens
+const LeftImage = styled.div`
+  flex: 1;
+  background: url(${loginbg}) center center/cover no-repeat;
+  display: none;
+  
+  @media(min-width: 768px) {
+    display: block;
+  }
 `;
 
-const FormCol = styled(Col)`
-  background-color: #ffffff;
-  padding: 30px;
+// Right side form container
+const FormContainer = styled.div`
+  flex: 1;
+  padding: 40px 30px;
   display: flex;
   flex-direction: column;
   justify-content: center;
 `;
 
-const LoginTitle = styled.h1`
-  font-size: 2rem;
-  font-weight: bold;
+// Title styled
+const Title = styled.h2`
   color: #FFA439;
-  margin-bottom: 20px;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
 `;
 
-const CustomButton = styled(Button)`
+// Styled submit button
+const SubmitButton = styled(Button)`
   background-color: #FFA439;
   border: none;
-  margin-top: 10px;
-  &:hover {
-    background-color: #FFA439;
+  font-weight: 600;
+  padding: 10px 0;
+  margin-top: 15px;
+
+  &:hover, &:focus {
+    background-color: #e68a21;
   }
 `;
 
+// Footer container
+const Footer = styled.footer`
+  margin-top: 30px;
+  text-align: center;
+  color: #FFA439;
+  font-weight: 500;
+  font-size: 0.9rem;
+`;
+
+// Input group icon wrapper
+const IconWrapper = styled(InputGroup.Text)`
+  background-color: #fff;
+  border-right: 0;
+  color: #FFA439;
+  font-size: 1.1rem;
+  border-radius: 0.375rem 0 0 0.375rem;
+  border: 1px solid #ced4da;
+`;
+
 const Login = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
-  const { t } = useTranslation();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await directusClient.post("/auth/login", {
-        email,
-        password,
-      });
+      const response = await directusClient.post("/auth/login", { email, password });
       const { access_token } = response.data.data;
 
       localStorage.setItem("access_token", access_token);
-      directusClient.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${access_token}`;
-
+      directusClient.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
 
       const userResponse = await directusClient.get("/users/me");
       const user = userResponse.data.data;
@@ -92,66 +127,63 @@ const Login = () => {
     }
   };
 
-  // const handleGoHome = () => {
-  //   navigate("/"); // Navigate to home page
-  // };
-
-
   return (
-    <>
-    <LoginContainer>
-      <LoginRow>
-        <ImageWrapper />
-        <FormCol md={6}>
-        <LoginTitle>QR-Order Menu SYSTEM</LoginTitle>
-          <Form onSubmit={handleLogin}>
-            <Form.Group className="mb-3">
-              <Form.Label>{t("login.email")}</Form.Label>
-              <Form.Control
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={t("login.emailPlaceholder")}
-                required
-              />
+    <PageWrapper>
+      <Card>
+        <LeftImage />
+        <FormContainer>
+          <Title>QR-Order Menu SYSTEM</Title>
+          <Form onSubmit={handleLogin} noValidate>
+            <Form.Group className="mb-3" controlId="formEmail">
+              <Form.Label className="visually-hidden">{t("login.email")}</Form.Label>
+              <InputGroup>
+                <IconWrapper>
+                  <FaUser />
+                </IconWrapper>
+                <Form.Control
+                  type="email"
+                  placeholder={t("login.emailPlaceholder")}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  aria-describedby="email-icon"
+                  autoComplete="username"
+                />
+              </InputGroup>
             </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>{t("login.password")}</Form.Label>
-              <Form.Control
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder={t("login.passwordPlaceholder")}
-                required
-              />
+
+            <Form.Group className="mb-3" controlId="formPassword">
+              <Form.Label className="visually-hidden">{t("login.password")}</Form.Label>
+              <InputGroup>
+                <IconWrapper>
+                  <FaLock />
+                </IconWrapper>
+                <Form.Control
+                  type="password"
+                  placeholder={t("login.passwordPlaceholder")}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  aria-describedby="password-icon"
+                  autoComplete="current-password"
+                />
+              </InputGroup>
             </Form.Group>
-            <CustomButton type="submit" className="w-100 mb-2">
+
+            <SubmitButton type="submit" size="lg" className="w-100">
               {t("login.submit")}
-            </CustomButton>
-            {/* <Button variant="secondary" onClick={handleGoHome} className="w-100">
-              {t("login.goHome")}
-            </Button> */}
+            </SubmitButton>
+
             {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
           </Form>
-        </FormCol>
-      </LoginRow>
-    </LoginContainer>
-     {/* Footer */}
-     <div
-     className="d-flex flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5"
-     style={{ backgroundColor: "#FFA439" }}
-   >
-     <div className="text-white mb-3 mb-md-0">
-       <strong>QR-Order Menu SYSTEM</strong>
-       <br />
-       <em>ck-solutions</em>
-       <br />
-       0702534588 | Copyright © 2024. All rights
-       reserved.
-     </div>
-   </div>
-   </>
 
+          <Footer>
+            <strong>QR-Order Menu SYSTEM</strong> &nbsp;|&nbsp; ck-solutions <br />
+            0702534588 | &copy; 2024. All rights reserved.
+          </Footer>
+        </FormContainer>
+      </Card>
+    </PageWrapper>
   );
 };
 
