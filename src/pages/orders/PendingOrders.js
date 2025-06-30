@@ -19,7 +19,7 @@ import { ORDER_ENDPOINT, FILE_UPLOAD_ENDPOINT } from "../../api/endpoints"; // R
 import { useNavigate } from "react-router-dom";
 import directusClient from "../../api/directusClient";
 
-const Orders = () => {
+const PendingOrders = () => {
   const navigate = useNavigate();
   const [studentReviews, setStudentReviews] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -103,6 +103,7 @@ const Orders = () => {
   // DataTable columns
   const columns = [
     { Header: "ID", accessor: "id" },
+      { Header: "Customer", accessor: "Name" },
     { Header: "Status", accessor: "status" },
     {
       Header: "Date Created",
@@ -297,4 +298,4 @@ const Orders = () => {
   );
 };
 
-export default Orders;
+export default PendingOrders;

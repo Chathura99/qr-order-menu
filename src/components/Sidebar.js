@@ -123,8 +123,14 @@ const Sidebar = ({ role }) => {
       icon: <FaHome />,
     },
     {
-      name: "Orders", // Replaces "Drivers"
-      path: "/orders",
+      name: "Pending Orders", // Replaces "Drivers"
+      path: "/p-orders",
+      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
+      icon: <FaUser />,
+    },
+      {
+      name: "Inprogress Orders", // Replaces "Drivers"
+      path: "/i-orders",
       roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
       icon: <FaUser />,
     },

@@ -7,8 +7,8 @@ import NotFound from "./components/NotFound";
 import ComingSoon from "./pages/comingSoon/ComingSoon";
 import Profile from "./pages/auth/Profile";
 import Login from "./pages/auth/Login";
-import Driver from "./pages/driver/Driver";
-import Orders from "./pages/orders/Orders";
+import PendingOrders from "./pages/orders/PendingOrders";
+import InprogressOrders from "./pages/orders/InprogressOrders";
 
 const App = () => {
   return (
@@ -17,7 +17,8 @@ const App = () => {
         <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
 
-        <Route path="/orders" element={<Orders />} />
+        <Route path="/p-orders" element={<PendingOrders />} />
+             <Route path="/i-orders" element={<InprogressOrders />} />
 
         <Route path="/reports" element={<ComingSoon featureName="Report" />} />
 
