@@ -9,8 +9,6 @@ import {
   ListGroup,
   Button,
   Form,
-  Spinner,
-  NavItem,
 } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -33,8 +31,8 @@ const QRCodePage = () => {
   const [cart, setCart] = useState([]);
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
+  const [selectedPortions, setSelectedPortions] = useState({}); // NEW
 
-  // Fetch table info
   useEffect(() => {
     const fetchTable = async () => {
       try {
@@ -55,7 +53,6 @@ const QRCodePage = () => {
     fetchTable();
   }, [qr_prefix]);
 
-  // Fetch menu categories with menu_items and their menu_items_id
   useEffect(() => {
     if (!tableData) return;
 
@@ -75,15 +72,30 @@ const QRCodePage = () => {
     fetchMenu();
   }, [tableData]);
 
+  const handlePortionChange = (itemId, value) => {
+    setSelectedPortions((prev) => ({
+      ...prev,
+      [itemId]: value,
+    }));
+  };
+
   const handleAddToCart = (item) => {
-    const exists = cart.find((c) => c.id === item.id);
+    const portion = selectedPortions[item.id] || "Single";
+
+    const exists = cart.find((c) => c.id === item.id && c.portion === portion);
     if (exists) {
       setCart(
-        cart.map((c) => (c.id === item.id ? { ...c, qty: c.qty + 1 } : c))
+        cart.map((c) =>
+          c.id === item.id && c.portion === portion
+            ? { ...c, qty: c.qty + 1 }
+            : c
+        )
       );
     } else {
-      setCart([...cart, { ...item, qty: 1, portion: "Single" }]);
+      setCart([...cart, { ...item, qty: 1, portion }]);
     }
+
+    toast.success(`${item.name} (${portion}) added to cart`);
   };
 
   const handlePlaceOrder = async () => {
@@ -101,6 +113,7 @@ const QRCodePage = () => {
         Menu_Items: cart.map((item) => ({
           menu_items_id: item.id,
           qty: item.qty,
+          portion: item.portion,
         })),
       };
 
@@ -114,9 +127,7 @@ const QRCodePage = () => {
     }
   };
 
-  if (loading) {
-    return <BurgerSpinner />;
-  }
+  if (loading) return <BurgerSpinner />;
 
   return (
     <div className="container mt-4">
@@ -169,52 +180,76 @@ const QRCodePage = () => {
                     ?.map((wrapper) => wrapper.menu_items_id)
                     ?.filter(Boolean)
                     .map((item) => (
-                      <Col md={4} key={item.id} className="mb-3">
+                      <Col md={4} key={item.id} className="mb-4">
                         <Card className="h-100 shadow-sm">
                           <Card.Body>
                             <Card.Title>{item.name}</Card.Title>
 
+                            {/* Labels */}
                             {item.labels?.length > 0 && (
                               <div className="mb-2">
                                 {item.labels.map((labelWrapper, idx) => (
-                                  <>
-                                    <span
-                                      key={idx}
-                                      className="badge bg-warning text-dark me-2"
-                                      style={{ fontSize: "0.75rem" }}
-                                    >
+                                  <span
+                                    key={idx}
+                                    className="badge bg-warning text-dark me-2 d-inline-flex align-items-center"
+                                    style={{ fontSize: "0.75rem", gap: "5px" }}
+                                  >
+                                    {labelWrapper.labels_id?.icon && (
                                       <ImageLoader
-                                        altText={""}
-                                        imageId={labelWrapper.labels_id?.icon}
+                                        altText=""
+                                        imageId={labelWrapper.labels_id.icon}
                                         style={{
-                                          width: "20px",
-                                          height: "20px",
+                                          width: "18px",
+                                          height: "18px",
                                           objectFit: "cover",
-                                          borderRadius: "10px",
+                                          borderRadius: "4px",
+                                          marginRight: "5px",
                                         }}
                                       />
-                                      {labelWrapper.labels_id?.label_name}
-                                    </span>
-                                  </>
+                                    )}
+                                    {labelWrapper.labels_id?.label_name}
+                                  </span>
                                 ))}
                               </div>
                             )}
+
+                            {/* Image */}
                             <ImageLoader
-                              altText={""}
+                              altText=""
                               imageId={item.image}
                               style={{
-                                width: "200px",
-                                height: "auto",
+                                width: "100%",
+                                height: "180px",
                                 objectFit: "cover",
                                 borderRadius: "10px",
+                                marginBottom: "10px",
                               }}
                             />
-                            <p>
+
+                            {/* Description */}
+                            <p style={{ minHeight: "60px" }}>
                               {item.description || "No description available."}
                             </p>
+
+                            {/* Portion selector */}
+                            <Form.Group className="mb-3">
+                              <Form.Label>Choose Portion</Form.Label>
+                              <Form.Select
+                                value={selectedPortions[item.id] || "Single"}
+                                onChange={(e) =>
+                                  handlePortionChange(item.id, e.target.value)
+                                }
+                              >
+                                <option value="Single">Single</option>
+                                <option value="Large">Large</option>
+                              </Form.Select>
+                            </Form.Group>
+
+                            {/* Add to Cart */}
                             <Button
                               variant="primary"
                               onClick={() => handleAddToCart(item)}
+                              className="w-100"
                             >
                               Add to Cart
                             </Button>
@@ -227,6 +262,7 @@ const QRCodePage = () => {
             ))}
           </Tabs>
 
+          {/* Cart */}
           <Card className="p-3 mt-4 shadow-sm">
             <h5>🛒 Your Cart</h5>
             {cart.length === 0 ? (
@@ -235,7 +271,7 @@ const QRCodePage = () => {
               <ListGroup>
                 {cart.map((item, index) => (
                   <ListGroup.Item key={index}>
-                    {item.name} (x{item.qty}) - {item.portion}
+                    {item.name} ({item.portion}) x {item.qty}
                   </ListGroup.Item>
                 ))}
               </ListGroup>
