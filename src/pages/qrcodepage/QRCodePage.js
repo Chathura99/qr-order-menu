@@ -231,7 +231,12 @@ const QRCodePage = () => {
                               {item.description || "No description available."}
                             </p>
 
-                            {/* Portion selector */}
+                            {/* Price */}
+                            <p style={{ minHeight: "60px" }}>
+                              {`LKR ${item.price}` || "Free"}
+                            </p>
+
+                            {/* Portion selector
                             <Form.Group className="mb-3">
                               <Form.Label>Choose Portion</Form.Label>
                               <Form.Select
@@ -243,7 +248,7 @@ const QRCodePage = () => {
                                 <option value="Single">Single</option>
                                 <option value="Large">Large</option>
                               </Form.Select>
-                            </Form.Group>
+                            </Form.Group> */}
 
                             {/* Add to Cart */}
                             <Button
