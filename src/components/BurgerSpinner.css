@@ -1,0 +1,73 @@
+.burger-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #09afad; /* Light sand-like background for a kitchen vibe */
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .burger {
+    position: relative;
+    width: 100px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+  }
+  
+  .bun {
+    width: 100px;
+    height: 40px;
+    border-radius: 50px;
+    position: absolute;
+    box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  .bun.top {
+    top: 0;
+    background: linear-gradient(to bottom, #f4a261, #e76f51);
+  }
+  
+  .bun.bottom {
+    bottom: 0;
+    background: linear-gradient(to top, #f4a261, #e76f51);
+  }
+  
+  .patty {
+    width: 80px;
+    height: 20px;
+    background: linear-gradient(to right, #4e342e 10%, #3e2723 90%);
+    position: absolute;
+    top: 50px;
+    left: 10px;
+    border-radius: 5px;
+    box-shadow: inset 0 -3px 5px rgba(0, 0, 0, 0.3);
+  }
+  
+  .patty::after {
+    content: '';
+    position: absolute;
+    width: 70px;
+    height: 2px;
+    background-color: rgba(0, 0, 0, 0.4);
+    top: 5px;
+    left: 5px;
+    box-shadow: 0 10px 0 rgba(0, 0, 0, 0.4), 0 20px 0 rgba(0, 0, 0, 0.4);
+  }
+  
+  .loading-text {
+    margin-top: 20px;
+    font-size: 20px;
+    color: #333;
+    font-weight: bold;
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  

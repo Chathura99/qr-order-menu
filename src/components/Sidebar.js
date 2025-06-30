@@ -123,40 +123,16 @@ const Sidebar = ({ role }) => {
       icon: <FaHome />,
     },
     {
-      name: "Kitchen Staff", // Replaces "Drivers"
-      path: "/kitchen-staff",
+      name: "Orders", // Replaces "Drivers"
+      path: "/orders",
       roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
       icon: <FaUser />,
     },
     {
-      name: "Waitstaff", // Replaces "Conductors"
-      path: "/waitstaff",
-      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
-      icon: <FaConciergeBell />,
-    },
-    {
-      name: "Menu Items", // Replaces "Daily Routes"
-      path: "/menu-items",
-      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
-      icon: <FaUtensils />,
-    },
-    {
-      name: "Payments",
-      path: "/payments",
-      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN, ], // Waiters might also handle payments
-      icon: <FaMoneyBillWave />,
-    },
-    {
-      name: "Reports",
+      name: "Reports", // Replaces "Drivers"
       path: "/reports",
       roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
-      icon: <FaChartBar />,
-    },
-    {
-      name: "Table Management", // Replaces "Dr-Monitor"
-      path: "/table-management",
-      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN, ],
-      icon: <FaChair />,
+      icon: <FaFileAlt />,
     },
     {
       name: "Profile",

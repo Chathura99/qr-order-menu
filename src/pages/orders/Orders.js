@@ -19,7 +19,7 @@ import { ORDER_ENDPOINT, FILE_UPLOAD_ENDPOINT } from "../../api/endpoints"; // R
 import { useNavigate } from "react-router-dom";
 import directusClient from "../../api/directusClient";
 
-const Dashboard = () => {
+const Orders = () => {
   const navigate = useNavigate();
   const [studentReviews, setStudentReviews] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -320,4 +320,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Orders;
