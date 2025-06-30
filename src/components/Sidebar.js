@@ -170,7 +170,7 @@ const Sidebar = ({ role }) => {
 
   return (
     <SidebarContainer>
-      <SidebarHeader>ABC</SidebarHeader>
+      <SidebarHeader>QR-Order Menu</SidebarHeader>
       {sidebarItems
         .filter((item) => item.roles.includes(role))
         .map((item) =>

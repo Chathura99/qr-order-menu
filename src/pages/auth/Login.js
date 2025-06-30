@@ -103,7 +103,7 @@ const Login = () => {
       <LoginRow>
         <ImageWrapper />
         <FormCol md={6}>
-        <LoginTitle>ABC SYSTEM - Login</LoginTitle>
+        <LoginTitle>QR-Order Menu SYSTEM - Login</LoginTitle>
           <Form onSubmit={handleLogin}>
             <Form.Group className="mb-3">
               <Form.Label>{t("login.email")}</Form.Label>
@@ -142,9 +142,9 @@ const Login = () => {
      style={{ backgroundColor: "#1976d2" }}
    >
      <div className="text-white mb-3 mb-md-0">
-       <strong>ABC SYSTEM</strong>
+       <strong>QR-Order Menu SYSTEM</strong>
        <br />
-       <em>BBB</em>
+       <em>ck-solutions</em>
        <br />
        AAA | 0702534588 | Copyright © 2024. All rights
        reserved.
