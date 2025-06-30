@@ -146,7 +146,7 @@ const InprogressOrders = () => {
           >
             <Card className="p-3">
               <div className="d-flex justify-content-between align-items-center">
-                <h1>PENDING ORDERS</h1>
+                <h1>Inprogress ORDERS</h1>
                 <button
                   type="button"
                   className="navbar-toggler bg-light"
