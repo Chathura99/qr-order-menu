@@ -6,16 +6,13 @@ import {
   Card,
   Button,
   Modal,
-  Form,
-  Spinner,
 } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Sidebar from "../../components/Sidebar"; // Replace with your Sidebar component
-import DataTable from "../../components/DataTable"; // Replace with your DataTable component
-import BurgerSpinner from "../../components/BurgerSpinner"
-import { apiRequest } from "../../hooks/apiRequest"; // Replace with your API hook
-import { ORDER_ENDPOINT, FILE_UPLOAD_ENDPOINT } from "../../api/endpoints"; // Replace with your API endpoint
+import Sidebar from "../../components/Sidebar";
+import BurgerSpinner from "../../components/BurgerSpinner";
+import { apiRequest } from "../../hooks/apiRequest";
+import { ORDER_ENDPOINT } from "../../api/endpoints";
 import { useNavigate } from "react-router-dom";
 import directusClient from "../../api/directusClient";
 
@@ -23,10 +20,8 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [studentReviews, setStudentReviews] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
-
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const userRole = localStorage.getItem("user_role") || "";
 
@@ -42,7 +37,6 @@ const Dashboard = () => {
         localStorage.removeItem("access_token");
         localStorage.removeItem("user_role");
         localStorage.removeItem("email");
-
         delete directusClient.defaults.headers.common["Authorization"];
         window.location.href = "/";
       }
@@ -50,13 +44,12 @@ const Dashboard = () => {
     fetchUserProfile();
   }, []);
 
-  // Fetch student reviews
   useEffect(() => {
     const fetchStudentOrders = async () => {
       setLoading(true);
       try {
         const response = await apiRequest(
-          `${ORDER_ENDPOINT}?filter[_or][0][status][_eq]=${"pending"}&filter[_or][1][status][_eq]=${"inprogress"}`
+          `${ORDER_ENDPOINT}?filter[_or][0][status][_eq]=pending&filter[_or][1][status][_eq]=inprogress&filter[_or][2][status][_eq]=completed`
         );
         setStudentReviews(response.data);
         setLoading(false);
@@ -68,47 +61,12 @@ const Dashboard = () => {
     fetchStudentOrders();
   }, []);
 
-  const handleEdit = (data) => {
-    setShowModal(true);
-  };
-
   const handleView = (data) => {
     setSelectedOrder(data);
     setShowModal(true);
   };
 
-  // DataTable columns
-  const columns = [
-    { Header: "ID", accessor: "id" },
-    { Header: "Type", accessor: "type" },
-    { Header: "Number(Room/Table)", accessor: "number" },
-    { Header: "Status", accessor: "status" },
-    {
-      Header: "Date Created",
-      accessor: (row) => {
-        const originalDate = new Date(row.date_created);
-        originalDate.setHours(originalDate.getHours() + 5);
-        originalDate.setMinutes(originalDate.getMinutes() + 30);
-        const date = originalDate.toISOString().split("T")[0];
-        const time = originalDate.toISOString().split("T")[1].split(".")[0];
-        return `${date} ${time}`;
-      },
-    },
-    {
-      Header: "Actions",
-      Cell: ({ row }) => (
-        <Button
-          variant="primary"
-          className="m-1"
-          onClick={() => handleView(row.original)}
-        >
-          View
-        </Button>
-      ),
-    },
-  ];
-
-  if (loading) return <BurgerSpinner/>
+  if (loading) return <BurgerSpinner />;
 
   return (
     <>
@@ -122,23 +80,59 @@ const Dashboard = () => {
             className="p-3"
             style={{ overflowY: "auto", maxHeight: "calc(100vh - 50px)" }}
           >
-            <Card className="p-3">
-              <div className="d-flex justify-content-between align-items-center">
-                <h1>PENDING ORDERS</h1>
-                <button
-                  type="button"
-                  className="navbar-toggler bg-light"
-                  onClick={() => setSidebarOpen(!sidebarOpen)}
-                >
-                  <span className="navbar-toggler-icon"></span>
-                </button>
-              </div>
+            <Card className="p-3 mb-4 d-flex justify-content-between align-items-center">
+              <h1 className="mb-0">Order Dashboard</h1>
+              <button
+                type="button"
+                className="navbar-toggler bg-light"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+              >
+                <span className="navbar-toggler-icon"></span>
+              </button>
             </Card>
 
-            <Card className="mt-3">
-              <h2 className="text-center m-3">Order List</h2>
+            <Card className="p-4">
+              <h2 className="text-center mb-4">Order Summary</h2>
+              <Row className="g-4 justify-content-center">
+                <Col md={4}>
+                  <Card className="text-white bg-warning shadow h-100">
+                    <Card.Body>
+                      <Card.Title>Pending Orders</Card.Title>
+                      <Card.Text className="display-4 fw-bold">
+                        {
+                          studentReviews.filter(order => order.status === 'pending').length
+                        }
+                      </Card.Text>
+                    </Card.Body>
+                  </Card>
+                </Col>
 
-              <DataTable columns={columns} data={studentReviews} />
+                <Col md={4}>
+                  <Card className="text-white bg-primary shadow h-100">
+                    <Card.Body>
+                      <Card.Title>In Progress Orders</Card.Title>
+                      <Card.Text className="display-4 fw-bold">
+                        {
+                          studentReviews.filter(order => order.status === 'inprogress').length
+                        }
+                      </Card.Text>
+                    </Card.Body>
+                  </Card>
+                </Col>
+
+                <Col md={4}>
+                  <Card className="text-white bg-success shadow h-100">
+                    <Card.Body>
+                      <Card.Title>Completed Orders</Card.Title>
+                      <Card.Text className="display-4 fw-bold">
+                        {
+                          studentReviews.filter(order => order.status === 'completed').length
+                        }
+                      </Card.Text>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
             </Card>
           </Col>
         </Row>
@@ -161,153 +155,19 @@ const Dashboard = () => {
                   <Row>
                     <Col md={6}>
                       <h5>Order Information</h5>
-                      <p>
-                        <strong>Order ID:</strong> {selectedOrder.id}
-                      </p>
-                      <p>
-                        <strong>Type:</strong> {selectedOrder.type}
-                      </p>
-                      <p>
-                        <strong>Number (Room/Table):</strong>{" "}
-                        {selectedOrder.number}
-                      </p>
-                      <p>
-                        <strong>Status:</strong> {selectedOrder.status}
-                      </p>
+                      <p><strong>Order ID:</strong> {selectedOrder.id}</p>
+                      <p><strong>Type:</strong> {selectedOrder.type}</p>
+                      <p><strong>Number (Room/Table):</strong> {selectedOrder.number}</p>
+                      <p><strong>Status:</strong> {selectedOrder.status}</p>
                     </Col>
                     <Col md={6}>
-                      <p>
-                        <strong>Total Price:</strong> $
-                        {selectedOrder.total_price}
-                      </p>
-                      <p>
-                        <strong>Date Created:</strong>{" "}
-                        {new Date(selectedOrder.date_created).toLocaleString()}
-                      </p>
-                      <p>
-                        <strong>Date Updated:</strong>{" "}
-                        {selectedOrder.date_updated
-                          ? new Date(
-                              selectedOrder.date_updated
-                            ).toLocaleString()
-                          : "N/A"}
-                      </p>
+                      <p><strong>Total Price:</strong> ${selectedOrder.total_price}</p>
+                      <p><strong>Date Created:</strong> {new Date(selectedOrder.date_created).toLocaleString()}</p>
+                      <p><strong>Date Updated:</strong> {selectedOrder.date_updated ? new Date(selectedOrder.date_updated).toLocaleString() : "N/A"}</p>
                     </Col>
                   </Row>
                 </Card.Body>
               </Card>
-
-              <h5 className="mb-3">Order Items</h5>
-              {selectedOrder?.order_details?.map((detail, index) => {
-                // Calculate total price for each item including add-ons
-                const calculateTotalPrice = (detail) => {
-                  const basePrice =
-                    detail.portion === "Large"
-                      ? detail.prices.large || 0
-                      : detail.prices.single || 0;
-                  const addOnsPrice = detail.add_ons.reduce((sum, addon) => {
-                    return sum + addon.price * addon.quantity;
-                  }, 0);
-                  return basePrice * detail.quantity + addOnsPrice;
-                };
-
-                const itemTotalPrice = calculateTotalPrice(detail);
-
-                return (
-                  <Card key={index} className="mb-4 shadow-sm">
-                    <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
-                      <h6 className="mb-0">{detail.item_name}</h6>
-                      <span>Total: ${itemTotalPrice.toFixed(2)}</span>
-                    </Card.Header>
-                    <Card.Body>
-                      <Row>
-                        <Col md={6}>
-                          <p>
-                            <strong>Spice Level:</strong> {detail.spice_level}
-                          </p>
-                          <p>
-                            <strong>Quantity:</strong> {detail.quantity}
-                          </p>
-                          <p>
-                            <strong>Portion:</strong> {detail.portion || "N/A"}
-                          </p>
-                        </Col>
-                        <Col md={6}>
-                          {detail.portion === "Single" && (
-                            <p>
-                              <strong>Price (Single):</strong> $
-                              {detail.prices.single}
-                            </p>
-                          )}
-                          {detail.portion === "Large" && (
-                            <p>
-                              <strong>Price (Large):</strong> $
-                              {detail.prices.large}
-                            </p>
-                          )}
-
-                          {detail.portion != "Large" &&
-                            detail.portion != "Single" && (
-                              <p>
-                                <strong>Price:</strong> ${detail.prices.single}
-                              </p>
-                            )}
-                        </Col>
-                      </Row>
-
-                      {detail.meal_items.length > 0 && (
-                        <div className="mt-3">
-                          <h6 className="bg-secondary text-white p-1">
-                            Meal Items
-                          </h6>
-                          <ul className="list-group">
-                            {detail.meal_items.map((meal, i) => (
-                              <li key={i} className="list-group-item">
-                                <strong>{meal.item_name}:</strong>{" "}
-                                {meal.options.length > 0
-                                  ? meal.options.map((option, j) => (
-                                      <span
-                                        key={j}
-                                        className={`badge mx-1 ${
-                                          option.selected
-                                            ? "bg-primary"
-                                            : "bg-secondary"
-                                        }`}
-                                      >
-                                        {option.name}
-                                      </span>
-                                    ))
-                                  : "N/A"}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-
-                      {detail.add_ons.length > 0 && (
-                        <div className="mt-3">
-                          <h6 className="bg-secondary text-white p-1">
-                            Add-Ons
-                          </h6>
-                          <ul className="list-group">
-                            {detail.add_ons
-                              .filter((addon) => addon.quantity != 0)
-                              .map((addon, j) => (
-                                <li key={j} className="list-group-item">
-                                  {addon.name} - ${addon.price} (Qty:{" "}
-                                  {addon.quantity})
-                                </li>
-                              ))}
-                            {detail.add_ons.filter(
-                              (addon) => addon.quantity !== 0
-                            ).length === 0 && "No add-ons!"}
-                          </ul>
-                        </div>
-                      )}
-                    </Card.Body>
-                  </Card>
-                );
-              })}
             </>
           ) : (
             <p>No order details available.</p>
