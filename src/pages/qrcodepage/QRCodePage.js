@@ -10,11 +10,13 @@ import {
   Button,
   Form,
   Spinner,
+  NavItem,
 } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import BurgerSpinner from "../../components/BurgerSpinner";
+import ImageLoader from "../../components/ImageLoader";
 import { apiRequest } from "../../hooks/apiRequest";
 import {
   MENU_CATEGORY_ENDPOINT,
@@ -60,7 +62,7 @@ const QRCodePage = () => {
     const fetchMenu = async () => {
       try {
         const catRes = await apiRequest(
-          `${MENU_CATEGORY_ENDPOINT}?fields=*,menu_items.*,menu_items.menu_items_id.*`
+          `${MENU_CATEGORY_ENDPOINT}?fields=*,menu_items.*,menu_items.menu_items_id.*,menu_items.menu_items_id.labels.labels_id.*`
         );
         setCategories(catRes.data);
         if (catRes.data.length > 0) {
@@ -76,7 +78,9 @@ const QRCodePage = () => {
   const handleAddToCart = (item) => {
     const exists = cart.find((c) => c.id === item.id);
     if (exists) {
-      setCart(cart.map((c) => (c.id === item.id ? { ...c, qty: c.qty + 1 } : c)));
+      setCart(
+        cart.map((c) => (c.id === item.id ? { ...c, qty: c.qty + 1 } : c))
+      );
     } else {
       setCart([...cart, { ...item, qty: 1, portion: "Single" }]);
     }
@@ -111,9 +115,7 @@ const QRCodePage = () => {
   };
 
   if (loading) {
-    return (
-        <BurgerSpinner />
-    );
+    return <BurgerSpinner />;
   }
 
   return (
@@ -123,7 +125,8 @@ const QRCodePage = () => {
         <>
           <Card className="p-4 mb-4 shadow-sm">
             <h4>
-              Welcome to {tableData.branch?.name} - Table {tableData.table_number}
+              Welcome to {tableData.branch?.name} - Table{" "}
+              {tableData.table_number}
             </h4>
             <p>
               <strong>QR Prefix:</strong> {tableData.qr_prefix}
@@ -154,7 +157,11 @@ const QRCodePage = () => {
             </Form>
           </Card>
 
-          <Tabs activeKey={selectedTab} onSelect={(k) => setSelectedTab(k)} className="mb-3">
+          <Tabs
+            activeKey={selectedTab}
+            onSelect={(k) => setSelectedTab(k)}
+            className="mb-3"
+          >
             {categories.map((cat) => (
               <Tab eventKey={cat.name} title={cat.name} key={cat.id}>
                 <Row>
@@ -166,8 +173,49 @@ const QRCodePage = () => {
                         <Card className="h-100 shadow-sm">
                           <Card.Body>
                             <Card.Title>{item.name}</Card.Title>
-                            <p>{item.description || "No description available."}</p>
-                            <Button variant="primary" onClick={() => handleAddToCart(item)}>
+
+                            {item.labels?.length > 0 && (
+                              <div className="mb-2">
+                                {item.labels.map((labelWrapper, idx) => (
+                                  <>
+                                    <span
+                                      key={idx}
+                                      className="badge bg-warning text-dark me-2"
+                                      style={{ fontSize: "0.75rem" }}
+                                    >
+                                      <ImageLoader
+                                        altText={""}
+                                        imageId={labelWrapper.labels_id?.icon}
+                                        style={{
+                                          width: "20px",
+                                          height: "20px",
+                                          objectFit: "cover",
+                                          borderRadius: "10px",
+                                        }}
+                                      />
+                                      {labelWrapper.labels_id?.label_name}
+                                    </span>
+                                  </>
+                                ))}
+                              </div>
+                            )}
+                            <ImageLoader
+                              altText={""}
+                              imageId={item.image}
+                              style={{
+                                width: "200px",
+                                height: "auto",
+                                objectFit: "cover",
+                                borderRadius: "10px",
+                              }}
+                            />
+                            <p>
+                              {item.description || "No description available."}
+                            </p>
+                            <Button
+                              variant="primary"
+                              onClick={() => handleAddToCart(item)}
+                            >
                               Add to Cart
                             </Button>
                           </Card.Body>
