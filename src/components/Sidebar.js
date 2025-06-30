@@ -30,7 +30,7 @@ import { useTranslation } from "react-i18next";
 const SidebarContainer = styled(Nav)`
   height: 100vh;
   width: 250px;
-  background-color: #58a6f0; /* Light blue background */
+  background-color: #FFA439; /* Light blue background */
   border-right: 1px solid #e0e0e0;
   position: fixed;
   top: 0;
@@ -70,12 +70,12 @@ const SidebarLink = styled(Nav.Link)`
       255,
       0.4
     ); /* Light background for active item */
-    color: #007bff; /* Change text color for active item */
+    color: #FFA439; /* Change text color for active item */
   }
 
   &.active:hover {
     background-color: rgba(255, 255, 255, 0.4);
-    color: #007bff;
+    color: #FFA439;
   }
 `;
 

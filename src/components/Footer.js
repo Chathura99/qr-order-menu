@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
 const FooterWrapper = styled.footer`
-  background-color: #3A88C8; /* Dark blue background */
+  background-color: #FFA439; /* Dark blue background */
   color: white;
   padding: 40px 0;
 `;

@@ -41,16 +41,16 @@ const FormCol = styled(Col)`
 const LoginTitle = styled.h1`
   font-size: 2rem;
   font-weight: bold;
-  color: #0056b3;
+  color: #FFA439;
   margin-bottom: 20px;
 `;
 
 const CustomButton = styled(Button)`
-  background-color: #007bff;
+  background-color: #FFA439;
   border: none;
   margin-top: 10px;
   &:hover {
-    background-color: #0056b3;
+    background-color: #FFA439;
   }
 `;
 
@@ -103,7 +103,7 @@ const Login = () => {
       <LoginRow>
         <ImageWrapper />
         <FormCol md={6}>
-        <LoginTitle>QR-Order Menu SYSTEM - Login</LoginTitle>
+        <LoginTitle>QR-Order Menu SYSTEM</LoginTitle>
           <Form onSubmit={handleLogin}>
             <Form.Group className="mb-3">
               <Form.Label>{t("login.email")}</Form.Label>
@@ -139,14 +139,14 @@ const Login = () => {
      {/* Footer */}
      <div
      className="d-flex flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5"
-     style={{ backgroundColor: "#1976d2" }}
+     style={{ backgroundColor: "#FFA439" }}
    >
      <div className="text-white mb-3 mb-md-0">
        <strong>QR-Order Menu SYSTEM</strong>
        <br />
        <em>ck-solutions</em>
        <br />
-       AAA | 0702534588 | Copyright © 2024. All rights
+       0702534588 | Copyright © 2024. All rights
        reserved.
      </div>
    </div>

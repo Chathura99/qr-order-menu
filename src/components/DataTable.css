@@ -73,8 +73,8 @@
 
 /* Improve button styling */
 .pagination-container .btn-primary {
-  background-color: #007bff;
-  border-color: #007bff;
+  background-color: #FFA439;
+  border-color: #FFA439;
 }
 
 .pagination-container .btn-primary:disabled {
@@ -84,5 +84,5 @@
 }
 
 .pagination-container .btn-primary:hover {
-  background-color: #0056b3;
+  background-color: #FFA439;
 }
