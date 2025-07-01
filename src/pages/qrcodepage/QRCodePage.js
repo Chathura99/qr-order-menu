@@ -24,6 +24,7 @@ import {
   ORDER_ENDPOINT,
 } from "../../api/endpoints";
 import "./QRCodePage.css"; // Import your CSS file
+import { tab } from "@material-tailwind/react";
 
 const QRCodePage = () => {
   const { qr_prefix } = useParams();
@@ -57,12 +58,40 @@ const QRCodePage = () => {
 
   useEffect(() => {
     if (!tableData) return;
+    console.log(tableData);
     const fetchMenu = async () => {
       try {
         const catRes = await apiRequest(
-          `${MENU_CATEGORY_ENDPOINT}?fields=*,menu_items.*,menu_items.menu_items_id.*,menu_items.menu_items_id.labels.labels_id.*`
+          `${MENU_CATEGORY_ENDPOINT}?filter[menu_items][menu_items_id][branches][branches_id][id][_eq]=${tableData.branch.id}&fields=*,menu_items.*,menu_items.menu_items_id.*,menu_items.menu_items_id.labels.labels_id.*,menu_items.menu_items_id.branches.branches_id.id`
         );
-        setCategories(catRes.data);
+        // setCategories(catRes.data);
+        const branchId = tableData.branch.id;
+
+        const filteredCategories = catRes.data
+          .map((category) => {
+            // Filter menu items within each category by branch ID
+            const filteredMenuItems = category.menu_items.filter((menuItem) => {
+              const branches = menuItem.menu_items_id.branches || [];
+              return branches.some(
+                (b) => b.branches_id && b.branches_id.id === branchId
+              );
+            });
+
+            // Only include categories that have matching menu items
+            if (filteredMenuItems.length > 0) {
+              return {
+                ...category,
+                menu_items: filteredMenuItems,
+              };
+            }
+
+            return null;
+          })
+          .filter(Boolean); // Remove null values
+
+        // Set filtered data
+        setCategories(filteredCategories);
+
         if (catRes.data.length > 0) {
           // Set initial selected tab to the first category name, or an empty string if no categories
           setSelectedTab(catRes.data[0]?.name || "");
@@ -148,7 +177,11 @@ const QRCodePage = () => {
               <p className="text-success">● Open - Closes 11.00PM</p>
             </div>
             <div className="header-buttons">
-              <Button variant="outline-dark" className="me-2 header-btn" onClick={() => window.location.href = "/"}>
+              <Button
+                variant="outline-dark"
+                className="me-2 header-btn"
+                onClick={() => (window.location.href = "/")}
+              >
                 Login
               </Button>
               <Button
