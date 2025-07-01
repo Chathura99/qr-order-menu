@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "QR",
+  "name": "QR Order Menu",
   "icons": [
     {
       "src": "favicon.ico",
