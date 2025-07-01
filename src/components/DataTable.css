@@ -1,88 +1,259 @@
-/* Container to center the table and pagination */
+/* General Table Container */
 .table-container {
-  margin: 0 auto;
-  padding: 20px;
-  max-width: 1200px;
+  background-color: #ffffff;
+  border-radius: 15px; /* Consistent with other cards */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); /* Soft, consistent shadow */
+  padding: 25px; /* Generous padding inside container */
+  margin-bottom: 30px; /* Space below the table */
+  overflow-x: auto; /* Ensure responsiveness for table itself */
 }
 
-/* Table styling */
+/* Custom Table Styles */
 .custom-table {
-  border-collapse: separate;
+  width: 100%;
+  margin-top: 0 !important; /* Remove default Bootstrap margin-top */
+  border-collapse: separate; /* Required for border-radius on table */
   border-spacing: 0;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 12px; /* Apply rounded corners to the whole table */
+  overflow: hidden; /* Ensure rounded corners clip content */
 }
 
-.custom-table th,
-.custom-table td {
-  padding: 12px 15px;
+.custom-table thead th {
+  background-color: #ff8c00; /* Orange header background */
+  color: white; /* White text for headers */
+  font-weight: 700; /* Bolder header text */
+  padding: 15px 20px; /* More padding for headers */
+  border: none; /* Remove individual cell borders in header */
   vertical-align: middle;
+  text-align: left; /* Default left align */
 }
 
-.custom-table th {
-  background-color: #f8f9fa;
-  color: #333;
-  font-weight: 600;
-  border-bottom: 2px solid #dee2e6;
+/* Rounded corners for first/last header cells */
+.custom-table thead tr th:first-child {
+  border-top-left-radius: 12px;
 }
 
-.custom-table td {
-  border-bottom: 1px solid #dee2e6;
+.custom-table thead tr th:last-child {
+  border-top-right-radius: 12px;
 }
 
-.custom-table tr:nth-child(even) {
-  background-color: #f2f2f2;
+.custom-table tbody tr {
+  transition: background-color 0.2s ease-in-out;
 }
 
-/* Hover effect for rows */
+.custom-table tbody tr:nth-of-type(odd) {
+  background-color: #fcfcfc; /* Very light subtle stripe */
+}
+
 .custom-table tbody tr:hover {
-  background-color: #f5f5f5;
-  cursor: pointer;
+  background-color: #fff3e0; /* Light orange on hover */
 }
 
-/* Pagination container */
-.pagination-container {
+.custom-table tbody td {
+  padding: 12px 20px; /* Padding for body cells */
+  vertical-align: middle;
+  border-top: 1px solid #eee; /* Light border between rows */
+  border-bottom: none;
+  border-left: none;
+  border-right: none;
+  color: #444; /* Darker text for content */
+}
+
+/* Specific styling for the last row's cells to handle bottom radius if needed */
+.custom-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 12px;
+}
+.custom-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 12px;
+}
+
+/* Actions Column Buttons */
+.table-actions {
   display: flex;
+  gap: 8px; /* Space between action buttons */
+  justify-content: center; /* Center actions if needed */
+}
+
+.action-btn {
+  border-radius: 8px; /* Rounded buttons */
+  padding: 7px 10px; /* Adjust padding for small buttons */
+  font-size: 0.9em;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.edit-btn {
+  background-color: #ffc107; /* Orange for edit */
+  border-color: #ffc107;
+  color: #333;
+}
+
+.edit-btn:hover {
+  background-color: #e0a800;
+  border-color: #d39e00;
+  transform: translateY(-1px);
+}
+
+.delete-btn {
+  background-color: #dc3545; /* Red for delete */
+  border-color: #dc3545;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+  transform: translateY(-1px);
+}
+
+
+/* Pagination Controls */
+.pagination-wrapper {
+  display: flex;
+  justify-content: space-between; /* Distribute items */
   align-items: center;
-  justify-content: center;
-  margin-top: 20px;
+  margin-top: 25px; /* Space above pagination */
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  gap: 15px; /* Gap between elements when wrapped */
 }
 
-/* Pagination buttons */
-.pagination-container .btn {
-  margin: 0 5px;
-  padding: 6px 12px;
-  border-radius: 4px;
-}
-
-/* Pagination information */
 .pagination-info {
-  margin: 0 10px;
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: 1em;
+  color: #555;
+  white-space: nowrap; /* Prevent text from wrapping prematurely */
 }
 
-/* Dropdown for changing page size */
-.pagination-select {
-  margin-left: 10px;
-  padding: 5px;
-  font-size: 1rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  background-color: #fff;
+.pagination-info strong {
+  color: #333;
 }
 
-/* Improve button styling */
-.pagination-container .btn-primary {
-  background-color: #FFA439;
-  border-color: #FFA439;
+.pagination-input {
+  width: 60px; /* Small width for page number input */
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 0.9em;
+  margin-left: 8px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.pagination-container .btn-primary:disabled {
-  background-color: #ccc;
-  border-color: #ccc;
+.pagination-input:focus {
+  border-color: #ff8c00;
+  box-shadow: 0 0 0 0.25rem rgba(255, 140, 0, 0.25);
+  outline: none;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 10px; /* Space between pagination buttons */
+  flex-wrap: wrap; /* Allow buttons to wrap */
+}
+
+.pagination-btn {
+  background-color: transparent;
+  color: #ff8c00; /* Orange text */
+  border: 1px solid #ff8c00; /* Orange border */
+  border-radius: 8px; /* Rounded buttons */
+  padding: 8px 15px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  min-width: 80px; /* Ensure buttons have a minimum width */
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: #ff8c00; /* Solid orange on hover */
+  color: white;
+  border-color: #ff8c00;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(255, 140, 0, 0.2);
+}
+
+.pagination-btn:disabled {
+  background-color: #f5f5f5;
+  color: #bbb;
+  border-color: #eee;
   cursor: not-allowed;
+  opacity: 0.8;
 }
 
-.pagination-container .btn-primary:hover {
-  background-color: #FFA439;
+.pagination-select {
+  padding: 8px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fefefe;
+  font-size: 0.9em;
+  color: #555;
+  appearance: none; /* Remove default arrow */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ff8c00%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.4H18.4c-6%200-11.6%203.4-13.2%208.4-1.6%205.2-.2%2010.8%203.2%2014.2l128.4%20129%20128.8-129c3.4-3.4%204.8-9%203.2-14.2z%22%2F%3E%3C%2Fsvg%3E'); /* Custom dropdown arrow */
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 10px;
+  padding-right: 30px; /* Make space for the custom arrow */
+}
+
+.pagination-select:focus {
+  border-color: #ff8c00;
+  box-shadow: 0 0 0 0.25rem rgba(255, 140, 0, 0.25);
+  outline: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .table-container {
+    padding: 15px;
+  }
+
+  .custom-table thead th,
+  .custom-table tbody td {
+    padding: 10px 12px;
+    font-size: 0.9em;
+  }
+
+  .table-actions {
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 5px;
+  }
+
+  .action-btn {
+    width: 100%; /* Full width when stacked */
+  }
+
+  .pagination-wrapper {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .pagination-controls {
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .pagination-btn {
+    padding: 6px 12px;
+    font-size: 0.85em;
+    min-width: unset; /* Remove min-width to allow shrinking */
+    flex-grow: 1; /* Allow buttons to grow and fill space */
+  }
+
+  .pagination-info {
+    text-align: center;
+    font-size: 0.9em;
+  }
+
+  .pagination-input {
+    width: 50px;
+    padding: 6px 8px;
+  }
+
+  .pagination-select {
+    width: 100%; /* Full width for select on mobile */
+    max-width: 200px; /* Max width for select */
+    text-align-last: center; /* Center selected text */
+    padding-right: 25px; /* Adjust padding for centered text with arrow */
+  }
 }

@@ -1,21 +1,23 @@
 // src/components/Sidebar.js
-import React, { useEffect } from "react";
-import { Nav, Dropdown } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Nav, Dropdown, Button } from "react-bootstrap"; // Import Button
+import { Link, useNavigate, useLocation } from "react-router-dom"; // Import useLocation
 import {
   FaHome,
   FaUser,
   FaFileAlt,
-  FaChartBar,
   FaUsers,
-  FaChalkboardTeacher,
   FaSignOutAlt,
   FaGlobe,
-  FaUtensils, // For menu items/dishes
+  FaUtensils,
   FaMoneyBillWave,
-  FaClipboardList, // For order tracking
-  FaConciergeBell, // For waitstaff/servers
+  FaClipboardList,
   FaChair,
+  FaBars, // Hamburger icon
+  FaTimes, // Close icon
+  FaHourglassHalf, // For pending orders
+  FaPlayCircle, // For in-progress orders
+  FaChartLine, // For reports
 } from "react-icons/fa";
 import styled from "styled-components";
 import directusClient from "../api/directusClient";
@@ -27,11 +29,12 @@ import {
 } from "../api/roles.js";
 import { useTranslation } from "react-i18next";
 
+// --- Styled Components ---
 const SidebarContainer = styled(Nav)`
   height: 100vh;
-  width: 250px;
-  background-color: #FFA439; /* Light blue background */
-  border-right: 1px solid #e0e0e0;
+  width: ${(props) => (props.$isCollapsed ? "80px" : "250px")}; /* Dynamic width */
+  background: linear-gradient(to bottom, #ff8c00, #ffa500); /* Orange gradient */
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
   position: fixed;
   top: 0;
   left: 0;
@@ -39,81 +42,220 @@ const SidebarContainer = styled(Nav)`
   display: flex;
   flex-direction: column;
   padding-top: 20px;
+  transition: width 0.3s ease-in-out, transform 0.3s ease-in-out; /* Smooth transition */
+  z-index: 1050; /* Above most content, below modals */
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 768px) {
+    width: 250px; /* Full width when open on mobile */
+    transform: translateX(${(props) => (props.$isMobileOpen ? "0" : "-100%")}); /* Slide in/out */
+  }
 `;
 
 const SidebarHeader = styled.h2`
   color: white;
   text-align: center;
   font-weight: bold;
-  margin-bottom: 40px; /* Add some space below the header */
+  margin-bottom: 40px;
+  font-size: ${(props) => (props.$isCollapsed ? "1.2em" : "1.8em")};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 10px;
+  transition: font-size 0.3s ease-in-out;
 `;
 
 const SidebarLink = styled(Nav.Link)`
   display: flex;
   align-items: center;
   padding: 12px 20px;
-  color: white; /* White text color */
+  color: white;
   font-weight: 500;
-  transition: background-color 0.3s, color 0.3s;
+  transition: background-color 0.3s, color 0.3s, padding 0.3s;
   text-decoration: none;
+  border-radius: 8px; /* Slightly rounded */
+  margin: 0 10px 5px 10px; /* Margin for separation */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.2); /* Lighten on hover */
-    color: white; /* Maintain white color on hover */
-    border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
   }
 
   &.active {
-    background-color: rgba(
-      255,
-      255,
-      255,
-      0.4
-    ); /* Light background for active item */
-    color: #FFA439; /* Change text color for active item */
+    background-color: rgba(255, 255, 255, 0.4);
+    color: #333; /* Darker color for active text */
+    font-weight: 700; /* Bolder for active */
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2); /* Inner shadow for depth */
   }
 
   &.active:hover {
-    background-color: rgba(255, 255, 255, 0.4);
-    color: #FFA439;
+    background-color: rgba(255, 255, 255, 0.5);
+    color: #333;
   }
+
+  ${(props) =>
+    props.$isCollapsed &&
+    `
+    padding: 12px 0; /* Center icon when collapsed */
+    justify-content: center;
+    span { display: none; } /* Hide text */
+    &:hover { background-color: rgba(255, 255, 255, 0.2); }
+    &.active { background-color: rgba(255, 255, 255, 0.4); }
+  `}
 `;
 
 const IconWrapper = styled.div`
-  font-size: 1.2em; /* Adjust icon size */
-  margin-right: 10px;
+  font-size: 1.3em; /* Slightly larger icon size */
+  margin-right: ${(props) => (props.$isCollapsed ? "0" : "10px")};
+  width: ${(props) => (props.$isCollapsed ? "100%" : "auto")};
+  text-align: ${(props) => (props.$isCollapsed ? "center" : "left")};
+  transition: margin-right 0.3s ease-in-out, width 0.3s ease-in-out;
 `;
 
 const LanguageSwitcher = styled(Dropdown)`
-  margin-top: auto;
+  margin-top: auto; /* Pushes it to the bottom */
   padding: 12px 20px;
   cursor: pointer;
-  color: white; /* White text color */
+  color: white;
   font-weight: 500;
+  border-top: 1px solid rgba(255, 255, 255, 0.2); /* Separator line */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
-  .dropdown-toggle::after {
-    display: none; /* Hide dropdown arrow */
+  .dropdown-toggle {
+    color: white;
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0;
+    justify-content: ${(props) => (props.$isCollapsed ? "center" : "flex-start")};
+
+    &::after {
+      display: ${(props) => (props.$isCollapsed ? "none" : "block")}; /* Hide dropdown arrow when collapsed */
+      margin-left: auto;
+    }
+    &:hover {
+      background: none;
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+
+  .dropdown-menu {
+    background-color: #f8f9fa; /* Light background for dropdown menu */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   }
 
   .dropdown-item {
-    color: #333; /* Color for dropdown items */
+    color: #333;
+    padding: 8px 15px;
+    &:hover {
+      background-color: #ffc107; /* Orange hover */
+      color: white;
+    }
+    &.active {
+      background-color: #ff8c00; /* Darker orange active */
+      color: white;
+    }
   }
 
-  .dropdown-item:hover {
-    background-color: rgba(255, 255, 255, 0.2); /* Lighten on hover */
+  ${(props) =>
+    props.$isCollapsed &&
+    `
+    padding: 12px 0;
+    .dropdown-toggle span { display: none; }
+  `}
+`;
+
+const ToggleButton = styled(Button)`
+  position: fixed;
+  top: 15px;
+  left: ${(props) => (props.$isCollapsed ? "90px" : "260px")}; /* Adjust position */
+  background-color: #ff8c00;
+  border: none;
+  color: white;
+  font-size: 1.5em;
+  padding: 8px 12px;
+  border-radius: 8px;
+  z-index: 1060; /* Above sidebar */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: left 0.3s ease-in-out;
+
+  &:hover {
+    background-color: #e07b00;
+  }
+
+  @media (max-width: 768px) {
+    left: 15px; /* Fixed position on mobile */
+    top: 15px;
+    background-color: #ff8c00; /* Visible on mobile */
+    display: block; /* Show on mobile */
+  }
+
+  @media (min-width: 769px) {
+    display: block; /* Always show on desktop */
   }
 `;
 
+const Overlay = styled.div`
+  @media (max-width: 768px) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    z-index: 1040; /* Below sidebar, above content */
+    display: ${(props) => (props.$isVisible ? "block" : "none")};
+  }
+  @media (min-width: 769px) {
+    display: none; /* Hide on desktop */
+  }
+`;
+
+// --- Sidebar Component ---
 const Sidebar = ({ role }) => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation(); // To get current path for active link
+  const [isCollapsed, setIsCollapsed] = useState(false); // State for desktop collapse
+  const [isMobileOpen, setIsMobileOpen] = useState(false); // State for mobile sidebar
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem("language");
     if (savedLanguage) {
       i18n.changeLanguage(savedLanguage);
     }
-  }, [i18n]);
+
+    // Close mobile sidebar on route change
+    setIsMobileOpen(false);
+  }, [i18n, location]);
+
+  // Handle screen size changes for sidebar collapse
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setIsCollapsed(false); // Force not collapsed on mobile
+        setIsMobileOpen(false); // Ensure it's closed by default
+      } else {
+        // You can set a default collapsed state for desktop here if desired
+        // setIsCollapsed(false); // or true
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Call on initial render
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
 
   const sidebarItems = [
     {
@@ -123,22 +265,40 @@ const Sidebar = ({ role }) => {
       icon: <FaHome />,
     },
     {
-      name: "Pending Orders", // Replaces "Drivers"
+      name: "Pending Orders",
       path: "/p-orders",
       roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
-      icon: <FaUser />,
-    },
-      {
-      name: "Inprogress Orders", // Replaces "Drivers"
-      path: "/i-orders",
-      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
-      icon: <FaUser />,
+      icon: <FaHourglassHalf />,
     },
     {
-      name: "Reports", // Replaces "Drivers"
+      name: "Inprogress Orders",
+      path: "/i-orders",
+      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
+      icon: <FaPlayCircle />,
+    },
+    {
+      name: "Reports",
       path: "/reports",
       roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
-      icon: <FaFileAlt />,
+      icon: <FaChartLine />,
+    },
+    {
+      name: "Users", // Adding Users page
+      path: "/users",
+      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
+      icon: <FaUsers />,
+    },
+    {
+      name: "Menu Items", // New: Menu Management
+      path: "/menu-items",
+      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
+      icon: <FaUtensils />,
+    },
+    {
+      name: "Tables", // New: Table Management
+      path: "/tables",
+      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
+      icon: <FaChair />,
     },
     {
       name: "Profile",
@@ -148,7 +308,7 @@ const Sidebar = ({ role }) => {
     },
     {
       name: "Logout",
-      path: "/",
+      path: "/", // Logout action
       roles: [ROLE_RES_ADMIN, ROLE_CUSTOMER, ROLE_SUPER_ADMIN],
       icon: <FaSignOutAlt />,
     },
@@ -168,58 +328,97 @@ const Sidebar = ({ role }) => {
     localStorage.setItem("language", lng);
   };
 
-  return (
-    <SidebarContainer>
-      <SidebarHeader>QR-Order Menu</SidebarHeader>
-      {sidebarItems
-        .filter((item) => item.roles.includes(role))
-        .map((item) =>
-          item.name === "logout" ? (
-            <SidebarLink
-              as="a"
-              onClick={handleLogout}
-              key={item.name}
-              style={{ cursor: "pointer", textDecoration: "none" }}
-            >
-              <IconWrapper>{item.icon}</IconWrapper>
-              {/* {t(`sidebar.${item.name}`)} */}
-              {item.name}
-            </SidebarLink>
-          ) : (
-            <SidebarLink as={Link} to={item.path} key={item.name}>
-              <IconWrapper>{item.icon}</IconWrapper>
-              {/* {t(`sidebar.${item.name}`)} */}
-              {item.name}
-            </SidebarLink>
-          )
-        )}
+  const toggleSidebar = () => {
+    if (window.innerWidth <= 768) {
+      setIsMobileOpen(!isMobileOpen);
+    } else {
+      setIsCollapsed(!isCollapsed);
+    }
+  };
 
-      <LanguageSwitcher>
-        <Dropdown>
-          <Dropdown.Toggle as="button">
-            <IconWrapper>
-              <FaGlobe />
-            </IconWrapper>
-            {i18n.language === "en"
-              ? "English"
-              : i18n.language === "es"
-              ? "Español"
-              : "සිංහල"}
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <Dropdown.Item onClick={() => changeLanguage("en")}>
-              English
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => changeLanguage("es")}>
-              Español
-            </Dropdown.Item>
-            <Dropdown.Item onClick={() => changeLanguage("si")}>
-              සිංහල
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-      </LanguageSwitcher>
-    </SidebarContainer>
+  return (
+    <>
+      <ToggleButton
+        onClick={toggleSidebar}
+        $isCollapsed={isCollapsed}
+        className="d-lg-none d-block" // Show only on small screens for initial click
+      >
+        {isMobileOpen ? <FaTimes /> : <FaBars />}
+      </ToggleButton>
+
+      <ToggleButton
+        onClick={toggleSidebar}
+        $isCollapsed={isCollapsed}
+        className="d-none d-lg-block" // Show only on large screens for collapse/expand
+      >
+        {isCollapsed ? <FaBars /> : <FaTimes />}
+      </ToggleButton>
+
+      {/* Overlay for mobile when sidebar is open */}
+      <Overlay $isVisible={isMobileOpen} onClick={() => setIsMobileOpen(false)} />
+
+      <SidebarContainer $isCollapsed={isCollapsed} $isMobileOpen={isMobileOpen}>
+        <SidebarHeader $isCollapsed={isCollapsed}>
+          {isCollapsed ? "QR" : "QR-Order Menu"}
+        </SidebarHeader>
+        {sidebarItems
+          .filter((item) => item.roles.includes(role))
+          .map((item) =>
+            item.name === "Logout" ? ( // Check for "Logout" explicitly
+              <SidebarLink
+                as="a"
+                onClick={handleLogout}
+                key={item.name}
+                $isCollapsed={isCollapsed}
+                className={location.pathname === item.path ? 'active' : ''} // Set active based on path
+                style={{ cursor: "pointer"}} // Ensure pointer cursor
+              >
+                <IconWrapper $isCollapsed={isCollapsed}>{item.icon}</IconWrapper>
+                <span>{item.name}</span>
+              </SidebarLink>
+            ) : (
+              <SidebarLink
+                as={Link}
+                to={item.path}
+                key={item.name}
+                $isCollapsed={isCollapsed}
+                className={location.pathname === item.path ? 'active' : ''} // Set active based on path
+              >
+                <IconWrapper $isCollapsed={isCollapsed}>{item.icon}</IconWrapper>
+                <span>{item.name}</span>
+              </SidebarLink>
+            )
+          )}
+
+        <LanguageSwitcher $isCollapsed={isCollapsed}>
+          <Dropdown>
+            <Dropdown.Toggle as="button">
+              <IconWrapper $isCollapsed={isCollapsed}>
+                <FaGlobe />
+              </IconWrapper>
+              <span>
+                {i18n.language === "en"
+                  ? "English"
+                  : i18n.language === "es"
+                  ? "Español"
+                  : "සිංහල"}
+              </span>
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={() => changeLanguage("en")}>
+                English
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => changeLanguage("es")}>
+                Español
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => changeLanguage("si")}>
+                සිංහල
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </LanguageSwitcher>
+      </SidebarContainer>
+    </>
   );
 };
 
