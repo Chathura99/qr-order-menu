@@ -9,18 +9,21 @@ import {
   ListGroup,
   Button,
   Form,
+  Badge, // Import Badge for better label styling
 } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 import BurgerSpinner from "../../components/BurgerSpinner";
 import ImageLoader from "../../components/ImageLoader";
 import { apiRequest } from "../../hooks/apiRequest";
+import logoBg from "../../images/logo.png"; // Assuming this is your logo image
+
 import {
   MENU_CATEGORY_ENDPOINT,
   TABLE_ENDPOINT,
   ORDER_ENDPOINT,
 } from "../../api/endpoints";
+import "./QRCodePage.css"; // Import your CSS file
 
 const QRCodePage = () => {
   const { qr_prefix } = useParams();
@@ -31,7 +34,6 @@ const QRCodePage = () => {
   const [cart, setCart] = useState([]);
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
-  const [selectedPortions, setSelectedPortions] = useState({}); // NEW
 
   useEffect(() => {
     const fetchTable = async () => {
@@ -55,7 +57,6 @@ const QRCodePage = () => {
 
   useEffect(() => {
     if (!tableData) return;
-
     const fetchMenu = async () => {
       try {
         const catRes = await apiRequest(
@@ -63,7 +64,8 @@ const QRCodePage = () => {
         );
         setCategories(catRes.data);
         if (catRes.data.length > 0) {
-          setSelectedTab(catRes.data[0].name);
+          // Set initial selected tab to the first category name, or an empty string if no categories
+          setSelectedTab(catRes.data[0]?.name || "");
         }
       } catch {
         toast.error("Failed to load menu.");
@@ -72,221 +74,237 @@ const QRCodePage = () => {
     fetchMenu();
   }, [tableData]);
 
-  const handlePortionChange = (itemId, value) => {
-    setSelectedPortions((prev) => ({
-      ...prev,
-      [itemId]: value,
-    }));
-  };
-
+  // Handle adding item to cart
   const handleAddToCart = (item) => {
-    const portion = selectedPortions[item.id] || "Single";
-
-    const exists = cart.find((c) => c.id === item.id && c.portion === portion);
+    const exists = cart.find((c) => c.id === item.id); // Check if item already exists
     if (exists) {
       setCart(
-        cart.map((c) =>
-          c.id === item.id && c.portion === portion
-            ? { ...c, qty: c.qty + 1 }
-            : c
-        )
+        cart.map((c) => (c.id === item.id ? { ...c, qty: c.qty + 1 } : c))
       );
     } else {
-      setCart([...cart, { ...item, qty: 1, portion }]);
+      setCart([...cart, { ...item, qty: 1}]); 
     }
+    toast.success(`${item.name} added to cart`);
+  };
 
-    toast.success(`${item.name} (${portion}) added to cart`);
+  // Handle removing item from cart
+  const handleRemoveFromCart = (itemId) => {
+    setCart(cart.filter((item) => item.id !== itemId));
+    toast.info("Item removed from cart.");
   };
 
   const handlePlaceOrder = async () => {
-    if (!name || !mobile || cart.length === 0) {
+    if (!name.trim() || !mobile.trim() || cart.length === 0) {
       toast.error("Please fill name, mobile and select at least one item.");
+      return;
+    }
+
+    if (mobile.trim().length < 10 || !/^\d+$/.test(mobile.trim())) {
+      toast.error("Please enter a valid mobile number (at least 10 digits).");
       return;
     }
 
     try {
       const orderPayload = {
-        Name: name,
-        Mobile_Number: mobile,
+        Name: name.trim(),
+        Mobile_Number: mobile.trim(),
         status: "pending",
         table: tableData.id,
         Menu_Items: cart.map((item) => ({
           menu_items_id: item.id,
           qty: item.qty,
-          portion: item.portion,
         })),
       };
-
       await apiRequest(ORDER_ENDPOINT, "POST", orderPayload);
       toast.success("Order placed successfully!");
       setCart([]);
       setName("");
       setMobile("");
     } catch (e) {
-      toast.error("Failed to place order.");
+      console.error("Order placement failed:", e);
+      toast.error("Failed to place order. Please try again.");
     }
   };
 
   if (loading) return <BurgerSpinner />;
 
   return (
-    <div className="container mt-4">
-      <ToastContainer />
+    <div className="container-fluid p-0">
+      <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
       {tableData && (
         <>
-          <Card className="p-4 mb-4 shadow-sm">
-            <h4>
-              Welcome to {tableData.branch?.name} - Table{" "}
-              {tableData.table_number}
-            </h4>
-            <p>
-              <strong>QR Prefix:</strong> {tableData.qr_prefix}
-            </p>
-            <Form>
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Name</Form.Label>
-                    <Form.Control
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Enter your name"
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Mobile</Form.Label>
-                    <Form.Control
-                      value={mobile}
-                      onChange={(e) => setMobile(e.target.value)}
-                      placeholder="Enter mobile number"
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-            </Form>
-          </Card>
-
-          <Tabs
-            activeKey={selectedTab}
-            onSelect={(k) => setSelectedTab(k)}
-            className="mb-3"
-          >
-            {categories.map((cat) => (
-              <Tab eventKey={cat.name} title={cat.name} key={cat.id}>
-                <Row>
-                  {cat.menu_items
-                    ?.map((wrapper) => wrapper.menu_items_id)
-                    ?.filter(Boolean)
-                    .map((item) => (
-                      <Col md={4} key={item.id} className="mb-4">
-                        <Card className="h-100 shadow-sm">
-                          <Card.Body>
-                            <Card.Title>{item.name}</Card.Title>
-
-                            {/* Labels */}
-                            {item.labels?.length > 0 && (
-                              <div className="mb-2">
-                                {item.labels.map((labelWrapper, idx) => (
-                                  <span
-                                    key={idx}
-                                    className="badge bg-warning text-dark me-2 d-inline-flex align-items-center"
-                                    style={{ fontSize: "0.75rem", gap: "5px" }}
-                                  >
-                                    {labelWrapper.labels_id?.icon && (
-                                      <ImageLoader
-                                        altText=""
-                                        imageId={labelWrapper.labels_id.icon}
-                                        style={{
-                                          width: "18px",
-                                          height: "18px",
-                                          objectFit: "cover",
-                                          borderRadius: "4px",
-                                          marginRight: "5px",
-                                        }}
-                                      />
-                                    )}
-                                    {labelWrapper.labels_id?.label_name}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-
-                            {/* Image */}
-                            <ImageLoader
-                              altText=""
-                              imageId={item.image}
-                              style={{
-                                width: "100%",
-                                height: "180px",
-                                objectFit: "cover",
-                                borderRadius: "10px",
-                                marginBottom: "10px",
-                              }}
-                            />
-
-                            {/* Description */}
-                            <p style={{ minHeight: "60px" }}>
-                              {item.description || "No description available."}
-                            </p>
-
-                            {/* Price */}
-                            <p style={{ minHeight: "60px" }}>
-                              {`LKR ${item.price}` || "Free"}
-                            </p>
-
-                            {/* Portion selector
-                            <Form.Group className="mb-3">
-                              <Form.Label>Choose Portion</Form.Label>
-                              <Form.Select
-                                value={selectedPortions[item.id] || "Single"}
-                                onChange={(e) =>
-                                  handlePortionChange(item.id, e.target.value)
-                                }
-                              >
-                                <option value="Single">Single</option>
-                                <option value="Large">Large</option>
-                              </Form.Select>
-                            </Form.Group> */}
-
-                            {/* Add to Cart */}
-                            <Button
-                              variant="primary"
-                              onClick={() => handleAddToCart(item)}
-                              className="w-100"
-                            >
-                              Add to Cart
-                            </Button>
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                    ))}
-                </Row>
-              </Tab>
-            ))}
-          </Tabs>
-
-          {/* Cart */}
-          <Card className="p-3 mt-4 shadow-sm">
-            <h5>🛒 Your Cart</h5>
-            {cart.length === 0 ? (
-              <p>No items added.</p>
-            ) : (
-              <ListGroup>
-                {cart.map((item, index) => (
-                  <ListGroup.Item key={index}>
-                    {item.name} ({item.portion}) x {item.qty}
-                  </ListGroup.Item>
-                ))}
-              </ListGroup>
-            )}
-            <div className="text-end mt-3">
-              <Button variant="success" onClick={handlePlaceOrder}>
-                Place Order
+          {/* Header Section */}
+          <div className="header-section">
+            <div className="header-logo">
+              <img
+                src={logoBg}
+                alt="Mr. Kottu Grand Logo"
+                style={{ maxWidth: "100%", maxHeight: "100%" }}
+              />
+            </div>
+            <div className="header-details">
+              <h4>Mr. Kottu Grand</h4>
+              <p>Piliyandala</p>
+              <p className="text-success">● Open - Closes 11.00PM</p>
+            </div>
+            <div className="header-buttons">
+              <Button variant="outline-dark" className="me-2 header-btn">
+                ⭐️ Review Us
+              </Button>
+              <Button variant="outline-dark" className="header-btn">
+                📍 Google Map
               </Button>
             </div>
-          </Card>
+          </div>
+
+          <div className="container mt-4 main-content-area">
+            <Card className="p-4 mb-4 shadow-sm customer-info-card">
+              <h4>
+                Welcome to {tableData.branch?.name} - Table{" "}
+                {tableData.table_number}
+              </h4>
+              <p>
+                <strong>QR Prefix:</strong> {tableData.qr_prefix}
+              </p>
+              <Form>
+                <Row>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Name</Form.Label>
+                      <Form.Control
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Enter your name"
+                        className="form-control-custom"
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Mobile</Form.Label>
+                      <Form.Control
+                        value={mobile}
+                        onChange={(e) => setMobile(e.target.value)}
+                        placeholder="Enter mobile number"
+                        className="form-control-custom"
+                        type="tel" // Use type tel for mobile numbers
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </Form>
+            </Card>
+
+            <Tabs
+              activeKey={selectedTab}
+              onSelect={(k) => setSelectedTab(k)}
+              className="mb-3 custom-tabs-container" // Add custom class for styling
+            >
+              {categories.map((cat) => (
+                <Tab eventKey={cat.name} title={cat.name} key={cat.id}>
+                  <Row>
+                    {cat.menu_items
+                      ?.map((wrapper) => wrapper.menu_items_id)
+                      ?.filter(Boolean)
+                      .map((item) => (
+                        <Col md={4} key={item.id} className="mb-4">
+                          <Card className="h-100 menu-item-card">
+                            <Card.Body>
+                              <Card.Title>{item.name}</Card.Title>
+                              {/* Labels */}
+                              {item.labels?.length > 0 && (
+                                <div className="mb-2 item-labels-container">
+                                  {item.labels.map((labelWrapper, idx) => (
+                                    <Badge
+                                      key={idx}
+                                      bg="warning" // Using Bootstrap badge background
+                                      className="item-label-badge" // Custom class for styling
+                                    >
+                                      {labelWrapper.labels_id?.icon && (
+                                        <ImageLoader
+                                          altText=""
+                                          imageId={labelWrapper.labels_id.icon}
+                                          className="item-label-icon"
+                                          style={{ width: "1em", height: "1em" }}
+                                        />
+                                      )}
+                                      {labelWrapper.labels_id?.label_name}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
+                              {/* Image */}
+                              <ImageLoader
+                                altText={item.name}
+                                imageId={item.image}
+                                className="card-img-top"
+                              />
+                              {/* Description */}
+                              <p className="item-description">
+                                {item.description ||
+                                  "No description available."}
+                              </p>
+                              {/* Price */}
+                              <p className="item-price">
+                                {`Rs. ${item.price}` || "Free"}
+                              </p>
+                              {/* Add to Cart */}
+                              <Button
+                                variant="primary"
+                                onClick={() => handleAddToCart(item)}
+                                className="w-100 add-to-cart-btn"
+                              >
+                                Add to Cart
+                              </Button>
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                      ))}
+                  </Row>
+                </Tab>
+              ))}
+            </Tabs>
+
+            {/* Cart Section */}
+            <Card className="p-3 mt-4 shadow-sm cart-card">
+              <h5>🛒 Your Cart</h5>
+              {cart.length === 0 ? (
+                <p className="text-muted">No items added yet. Start Browse the menu!</p>
+              ) : (
+                <ListGroup variant="flush">
+                  {cart.map((item) => (
+                    <ListGroup.Item
+                      key={item.id} // Use item.id as key for unique identification
+                      className="d-flex justify-content-between align-items-center cart-item"
+                    >
+                      <div>
+                        <strong>{item.name}</strong> (Qty: {item.qty})
+                      </div>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => handleRemoveFromCart(item.id)}
+                        className="remove-from-cart-btn"
+                      >
+                        Remove
+                      </Button>
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              )}
+              <div className="text-end mt-3">
+                <Button
+                  variant="success"
+                  onClick={handlePlaceOrder}
+                  className="place-order-btn"
+                  disabled={cart.length === 0 || !name.trim() || !mobile.trim()}
+                >
+                  Place Order
+                </Button>
+              </div>
+            </Card>
+          </div>
+
         </>
       )}
     </div>
