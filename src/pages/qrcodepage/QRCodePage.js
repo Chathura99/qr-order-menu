@@ -82,7 +82,7 @@ const QRCodePage = () => {
         cart.map((c) => (c.id === item.id ? { ...c, qty: c.qty + 1 } : c))
       );
     } else {
-      setCart([...cart, { ...item, qty: 1}]); 
+      setCart([...cart, { ...item, qty: 1 }]);
     }
     toast.success(`${item.name} added to cart`);
   };
@@ -148,10 +148,19 @@ const QRCodePage = () => {
               <p className="text-success">● Open - Closes 11.00PM</p>
             </div>
             <div className="header-buttons">
-              <Button variant="outline-dark" className="me-2 header-btn">
-                ⭐️ Review Us
+              <Button variant="outline-dark" className="me-2 header-btn" onClick={() => window.location.href = "/"}>
+                Login
               </Button>
-              <Button variant="outline-dark" className="header-btn">
+              <Button
+                variant="outline-dark"
+                className="header-btn"
+                onClick={() =>
+                  window.open(
+                    "https://www.google.com/maps?q=Colombo+Sri+Lanka",
+                    "_blank"
+                  )
+                }
+              >
                 📍 Google Map
               </Button>
             </div>
@@ -225,7 +234,10 @@ const QRCodePage = () => {
                                           altText=""
                                           imageId={labelWrapper.labels_id.icon}
                                           className="item-label-icon"
-                                          style={{ width: "1em", height: "1em" }}
+                                          style={{
+                                            width: "1em",
+                                            height: "1em",
+                                          }}
                                         />
                                       )}
                                       {labelWrapper.labels_id?.label_name}
@@ -269,7 +281,9 @@ const QRCodePage = () => {
             <Card className="p-3 mt-4 shadow-sm cart-card">
               <h5>🛒 Your Cart</h5>
               {cart.length === 0 ? (
-                <p className="text-muted">No items added yet. Start Browse the menu!</p>
+                <p className="text-muted">
+                  No items added yet. Start Browse the menu!
+                </p>
               ) : (
                 <ListGroup variant="flush">
                   {cart.map((item) => (
@@ -304,7 +318,6 @@ const QRCodePage = () => {
               </div>
             </Card>
           </div>
-
         </>
       )}
     </div>

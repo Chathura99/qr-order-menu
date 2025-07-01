@@ -1,98 +1,126 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import directusClient from "../../api/directusClient";
-import { Container, Row, Col, Form, Button, Alert, InputGroup } from "react-bootstrap";
+import { Form, Button, Alert, InputGroup, Spinner } from "react-bootstrap"; // Removed Container, Row, Col as they are not needed with single column Card
 import { useTranslation } from "react-i18next";
 import { ROLE_CUSTOMER, ROLE_SUPER_ADMIN, ROLE_RES_ADMIN } from "../../api/roles";
 import styled from "styled-components";
-import loginbg from "../../images/loginbg.png";
-import { FaUser, FaLock } from "react-icons/fa";
+import logoIcon from "../../images/logo.png"; // Assuming a smaller logo icon for the top of the form
+import { FaUser, FaLock } from "react-icons/fa"; // Ensure react-icons is installed
 
-// Container with full viewport height, background color, and flex center
+// --- Styled Components ---
+
+// Page Wrapper: Full viewport height, centered content, clean background
 const PageWrapper = styled.div`
   min-height: 100vh;
   display: flex;
-  background: #fff;
   justify-content: center;
   align-items: center;
   padding: 20px;
+  background-color: #f5f7fa; /* Consistent light background from QRCodePage */
+  font-family: 'Poppins', sans-serif; /* Consistent font */
 `;
 
-// Card with shadow, rounded corners, and responsive width
+// Card: Main container for login form, with shadow, rounded corners, and responsive width
 const Card = styled.div`
-  max-width: 420px;
+  max-width: 450px; /* Max-width for the single column card */
   width: 100%;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  border-radius: 12px;
   background: #fff;
+  border-radius: 20px; /* More rounded corners */
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15); /* Stronger, softer shadow */
   overflow: hidden;
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Always column as it's a single panel */
+  align-items: center; /* Center content within the card */
+  padding: 40px 35px; /* Padding for the content inside the card */
 
-  @media(min-width: 768px) {
-    flex-direction: row;
-    max-width: 800px;
+  @media(max-width: 768px) {
+    padding: 30px 25px; /* Adjusted padding for mobile */
+    border-radius: 15px; /* Slightly less rounded on mobile */
   }
 `;
 
-// Left side image, hidden on small screens
-const LeftImage = styled.div`
-  flex: 1;
-  background: url(${loginbg}) center center/cover no-repeat;
-  display: none;
-  
-  @media(min-width: 768px) {
-    display: block;
-  }
+// Logo at the top of the form
+const FormLogo = styled.img`
+  width: 100px; /* Size of the logo */
+  height: 100px;
+  object-fit: contain;
+  margin-bottom: 2rem; /* Space below the logo */
 `;
 
-// Right side form container
-const FormContainer = styled.div`
-  flex: 1;
-  padding: 40px 30px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-`;
-
-// Title styled
+// Title: Styling for the main login title
 const Title = styled.h2`
-  color: #FFA439;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  text-align: center;
+  color: #ff8c00; /* Consistent orange color */
+  font-family: 'Montserrat', sans-serif; /* Bolder font for titles */
+  font-weight: 800; /* Extra bold */
+  margin-bottom: 2.5rem; /* More space below title */
+  font-size: 2.2rem; /* Larger font size */
+  text-align: center; /* Ensure title is centered */
+  line-height: 1.2;
+
+  @media(max-width: 768px) {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+  }
 `;
 
-// Styled submit button
+// Submit Button: Primary button styling
 const SubmitButton = styled(Button)`
-  background-color: #FFA439;
+  background: linear-gradient(to right, #ff8c00, #ffa500); /* Orange gradient */
   border: none;
-  font-weight: 600;
-  padding: 10px 0;
-  margin-top: 15px;
+  font-weight: 700; /* Bolder font */
+  padding: 14px 0; /* More padding */
+  margin-top: 25px; /* More space above button */
+  border-radius: 10px; /* Rounded corners */
+  font-size: 1.1rem; /* Larger font size */
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.25); /* Subtle shadow */
+  transition: all 0.3s ease;
 
   &:hover, &:focus {
-    background-color: #e68a21;
+    background: linear-gradient(to right, #e07b00, #e68a21); /* Darker gradient on hover */
+    box-shadow: 0 6px 18px rgba(255, 140, 0, 0.35); /* More pronounced shadow */
+    transform: translateY(-2px); /* Slight lift */
+    border: none; /* Ensure no border appears on hover/focus */
+  }
+
+  &:active {
+    transform: translateY(0); /* Press down effect */
+    box-shadow: 0 2px 8px rgba(255, 140, 0, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #ffc107; /* Lighter orange when disabled */
+    box-shadow: none;
+    transform: none;
   }
 `;
 
-// Footer container
+// Footer: Styling for the copyright/info footer
 const Footer = styled.footer`
-  margin-top: 30px;
+  margin-top: 40px; /* More space above footer */
   text-align: center;
-  color: #FFA439;
+  color: #6c757d; /* Muted grey color */
   font-weight: 500;
   font-size: 0.9rem;
+  line-height: 1.5;
+
+  strong {
+    color: #495057; /* Darker grey for strong text */
+  }
 `;
 
-// Input group icon wrapper
+// Icon Wrapper for InputGroup: Consistent with form-control-custom
 const IconWrapper = styled(InputGroup.Text)`
-  background-color: #fff;
+  background-color: #f8f9fa; /* Slightly off-white background for icon */
   border-right: 0;
-  color: #FFA439;
-  font-size: 1.1rem;
-  border-radius: 0.375rem 0 0 0.375rem;
-  border: 1px solid #ced4da;
+  color: #ff8c00; /* Orange icon color */
+  font-size: 1.2rem; /* Slightly larger icon */
+  border-radius: 10px 0 0 10px; /* Match input border-radius */
+  border: 1px solid #ced4da; /* Match input border */
+  padding: 12px 15px; /* Match input padding */
+  height: auto; /* Allow height to adjust */
 `;
 
 const Login = () => {
@@ -101,9 +129,12 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false); // Loading state for button
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError(null); // Clear previous errors
+    setLoading(true); // Set loading true on submission
     try {
       const response = await directusClient.post("/auth/login", { email, password });
       const { access_token } = response.data.data;
@@ -116,72 +147,85 @@ const Login = () => {
       localStorage.setItem("user_role", user.role);
       localStorage.setItem("name", user.first_name + " " + user.last_name);
 
-      const userRole = localStorage.getItem("user_role") || "guest";
+      const userRole = user.role || "guest"; // Use user.role directly
       if (userRole === ROLE_SUPER_ADMIN || userRole === ROLE_RES_ADMIN) {
         navigate("/dashboard");
       } else if (userRole === ROLE_CUSTOMER) {
         navigate("/orders");
+      } else {
+        // Handle other roles or default to a safe page
+        navigate("/");
       }
     } catch (err) {
-      setError(t("login.error"));
+      console.error("Login error:", err);
+      setError(t("login.error")); // Use translation for error message
+    } finally {
+      setLoading(false); // Set loading false after completion
     }
   };
 
   return (
     <PageWrapper>
       <Card>
-        <LeftImage />
-        <FormContainer>
-          <Title>QR-Order Menu SYSTEM</Title>
-          <Form onSubmit={handleLogin} noValidate>
-            <Form.Group className="mb-3" controlId="formEmail">
-              <Form.Label className="visually-hidden">{t("login.email")}</Form.Label>
-              <InputGroup>
-                <IconWrapper>
-                  <FaUser />
-                </IconWrapper>
-                <Form.Control
-                  type="email"
-                  placeholder={t("login.emailPlaceholder")}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  aria-describedby="email-icon"
-                  autoComplete="username"
-                />
-              </InputGroup>
-            </Form.Group>
+        <FormLogo src={logoIcon} alt="QR-Order Menu Logo" /> {/* New Logo component */}
+        <Title>QR-Order Menu SYSTEM</Title>
+        <Form onSubmit={handleLogin} noValidate className="w-100"> {/* Ensure form takes full width */}
+          <Form.Group className="mb-3" controlId="formEmail">
+            <Form.Label className="visually-hidden">{t("login.email")}</Form.Label>
+            <InputGroup className="input-group-custom"> {/* Add custom class */}
+              <IconWrapper>
+                <FaUser />
+              </IconWrapper>
+              <Form.Control
+                type="email"
+                placeholder={t("login.emailPlaceholder")}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                aria-describedby="email-icon"
+                autoComplete="username"
+                className="form-control-custom" /* Apply custom input style */
+              />
+            </InputGroup>
+          </Form.Group>
 
-            <Form.Group className="mb-3" controlId="formPassword">
-              <Form.Label className="visually-hidden">{t("login.password")}</Form.Label>
-              <InputGroup>
-                <IconWrapper>
-                  <FaLock />
-                </IconWrapper>
-                <Form.Control
-                  type="password"
-                  placeholder={t("login.passwordPlaceholder")}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  aria-describedby="password-icon"
-                  autoComplete="current-password"
-                />
-              </InputGroup>
-            </Form.Group>
+          <Form.Group className="mb-3" controlId="formPassword">
+            <Form.Label className="visually-hidden">{t("login.password")}</Form.Label>
+            <InputGroup className="input-group-custom"> {/* Add custom class */}
+              <IconWrapper>
+                <FaLock />
+              </IconWrapper>
+              <Form.Control
+                type="password"
+                placeholder={t("login.passwordPlaceholder")}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                aria-describedby="password-icon"
+                autoComplete="current-password"
+                className="form-control-custom" /* Apply custom input style */
+              />
+            </InputGroup>
+          </Form.Group>
 
-            <SubmitButton type="submit" size="lg" className="w-100">
-              {t("login.submit")}
-            </SubmitButton>
+          <SubmitButton type="submit" size="lg" className="w-100" disabled={loading}>
+            {loading ? (
+              <>
+                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                <span className="ms-2">Logging in...</span>
+              </>
+            ) : (
+              t("login.submit")
+            )}
+          </SubmitButton>
 
-            {error && <Alert variant="danger" className="mt-3">{error}</Alert>}
-          </Form>
+          {error && <Alert variant="danger" className="mt-3 login-alert">{error}</Alert>}
+        </Form>
 
-          <Footer>
-            <strong>QR-Order Menu SYSTEM</strong> &nbsp;|&nbsp; ck-solutions <br />
-            0702534588 | &copy; 2024. All rights reserved.
-          </Footer>
-        </FormContainer>
+        <Footer>
+          <strong>QR-Order Menu SYSTEM</strong> &nbsp;|&nbsp; IT Solutions <br />
+          0702534588 | &copy; 2024. All rights reserved.
+        </Footer>
       </Card>
     </PageWrapper>
   );

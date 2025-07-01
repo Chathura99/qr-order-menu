@@ -32,7 +32,7 @@ import { useTranslation } from "react-i18next";
 // --- Styled Components ---
 const SidebarContainer = styled(Nav)`
   height: 100vh;
-  width: ${(props) => (props.$isCollapsed ? "80px" : "250px")}; /* Dynamic width */
+  width: ${(props) => (props.$isCollapsed ? "80px" : "300px")}; /* Dynamic width */
   background: linear-gradient(to bottom, #ff8c00, #ffa500); /* Orange gradient */
   border-right: 1px solid rgba(255, 255, 255, 0.2);
   position: fixed;
@@ -176,8 +176,8 @@ const LanguageSwitcher = styled(Dropdown)`
 
 const ToggleButton = styled(Button)`
   position: fixed;
-  top: 15px;
-  left: ${(props) => (props.$isCollapsed ? "90px" : "260px")}; /* Adjust position */
+  bottom: 15px;
+  left: ${(props) => (props.$isCollapsed ? "90px" : "310px")}; /* Adjust position */
   background-color: #ff8c00;
   border: none;
   color: white;
@@ -282,24 +282,24 @@ const Sidebar = ({ role }) => {
       roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
       icon: <FaChartLine />,
     },
-    {
-      name: "Users", // Adding Users page
-      path: "/users",
-      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
-      icon: <FaUsers />,
-    },
-    {
-      name: "Menu Items", // New: Menu Management
-      path: "/menu-items",
-      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
-      icon: <FaUtensils />,
-    },
-    {
-      name: "Tables", // New: Table Management
-      path: "/tables",
-      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
-      icon: <FaChair />,
-    },
+    // {
+    //   name: "Users", // Adding Users page
+    //   path: "/users",
+    //   roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
+    //   icon: <FaUsers />,
+    // },
+    // {
+    //   name: "Menu Items", // New: Menu Management
+    //   path: "/menu-items",
+    //   roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
+    //   icon: <FaUtensils />,
+    // },
+    // {
+    //   name: "Tables", // New: Table Management
+    //   path: "/tables",
+    //   roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
+    //   icon: <FaChair />,
+    // },
     {
       name: "Profile",
       path: "/profile",
@@ -390,7 +390,7 @@ const Sidebar = ({ role }) => {
             )
           )}
 
-        <LanguageSwitcher $isCollapsed={isCollapsed}>
+        {/* <LanguageSwitcher $isCollapsed={isCollapsed}>
           <Dropdown>
             <Dropdown.Toggle as="button">
               <IconWrapper $isCollapsed={isCollapsed}>
@@ -416,7 +416,7 @@ const Sidebar = ({ role }) => {
               </Dropdown.Item>
             </Dropdown.Menu>
           </Dropdown>
-        </LanguageSwitcher>
+        </LanguageSwitcher> */}
       </SidebarContainer>
     </>
   );
