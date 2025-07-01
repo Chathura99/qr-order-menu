@@ -84,7 +84,7 @@ const Profile = () => {
                 <p><strong>{t('profile.firstName')}:</strong> {user.first_name}</p>
                 <p><strong>{t('profile.lastName')}:</strong> {user.last_name}</p>
                 <p><strong>{t('profile.email')}:</strong> {user.email}</p>
-                <Button variant="primary" onClick={handleEditClick}>{t('profile.edit')}</Button>
+                <Button variant="secondary" onClick={handleEditClick}>{t('profile.edit')}</Button>
               </div>
             ) : (
               <Form onSubmit={handleSave}>

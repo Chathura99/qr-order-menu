@@ -22,7 +22,7 @@ const App = () => {
         <Route path="/i-orders" element={<InprogressOrders />} />
         <Route path="/qr/:qr_prefix" element={<QRCodePage />} />
 
-        <Route path="/reports" element={<ComingSoon featureName="Report" />} />
+        <Route path="/reports" element={<ComingSoon featureName="REPORTS" />} />
 
         <Route path="/profile" element={<Profile />} />
         <Route path="*" element={<NotFound />} />

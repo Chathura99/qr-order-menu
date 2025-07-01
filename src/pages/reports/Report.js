@@ -30,7 +30,7 @@ const Reports = () => {
         </Col>
         <Col md={10} className="p-3">
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <h1>Reports</h1>
+            <h1>REPORTS</h1>
           </div>
 
           {comingSoon ? (

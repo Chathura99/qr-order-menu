@@ -21,7 +21,7 @@ import directusClient from "../../api/directusClient";
 
 const PendingOrders = () => {
   const navigate = useNavigate();
-  const [studentReviews, setStudentReviews] = useState([]);
+  const [orderList, setorderList] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -59,7 +59,7 @@ const PendingOrders = () => {
         const response = await apiRequest(
           `${ORDER_ENDPOINT}?filter[_or][0][status][_eq]=pending&fields=*,table.*,table.branch.*,Menu_Items.*,Menu_Items.menu_items_id.name`
         );
-        setStudentReviews(response.data);
+        setorderList(response.data);
         setLoading(false);
       } catch (error) {
         toast.error("Failed to load student review data.");
@@ -88,7 +88,7 @@ const PendingOrders = () => {
       });
       toast.success("Order status updated to inprogress.");
       // Update UI: remove from list and close modal
-      setStudentReviews((prev) =>
+      setorderList((prev) =>
         prev.filter((order) => order.id !== selectedOrder.id)
       );
       setShowModal(false);
@@ -120,7 +120,7 @@ const PendingOrders = () => {
       Header: "Actions",
       Cell: ({ row }) => (
         <Button
-          variant="primary"
+          variant="secondary"
           className="m-1"
           onClick={() => handleView(row.original)}
         >
@@ -160,7 +160,7 @@ const PendingOrders = () => {
             <Card className="mt-3 p-3 w-100" style={{ overflowX: "auto" }}>
               <h2 className="text-center mb-4">Order List</h2>
               <div style={{ width: "100%" }}>
-                <DataTable columns={columns} data={studentReviews} />
+                <DataTable columns={columns} data={orderList} />
               </div>
             </Card>
           </Col>
