@@ -62,7 +62,7 @@ const InprogressOrders = () => {
           `${ORDER_ENDPOINT}?filter[_and][0][_and][0][table][branch][_eq]=${branchId}&filter[_and][1][status][_eq]=inprogress&fields=*,table.*,table.branch.*,Menu_Items.*,Menu_Items.menu_items_id.name`
         );
         setorderList(response.data);
-        setLoading(false);
+        setLoading(true);
       } catch (error) {
         toast.error("Failed to load student review data.");
         setLoading(false);
