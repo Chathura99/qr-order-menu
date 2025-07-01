@@ -206,7 +206,7 @@ const QRCodePage = () => {
                 {tableData.table_number}
               </h4>
               <p>
-                <strong>QR Prefix:</strong> {tableData.qr_prefix}
+                {/* <strong>QR Prefix:</strong> {tableData.qr_prefix} */}
               </p>
               <Form>
                 <Row>
