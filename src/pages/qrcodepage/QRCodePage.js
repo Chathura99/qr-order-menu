@@ -173,7 +173,6 @@ const QRCodePage = () => {
             </div>
             <div className="header-details">
               <h4>Mr. Kottu Grand</h4>
-              <p>Piliyandala</p>
               <p className="text-success">● Open - Closes 11.00PM</p>
             </div>
             <div className="header-buttons">
