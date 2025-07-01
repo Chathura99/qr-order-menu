@@ -257,7 +257,7 @@ const InprogressOrders = () => {
               )}
 
               {/* Status change button */}
-              {selectedOrder.status === "pending" && (
+              {selectedOrder.status === "inprogress" && (
                 <div className="d-flex justify-content-end">
                   <Button
                     variant="success"
