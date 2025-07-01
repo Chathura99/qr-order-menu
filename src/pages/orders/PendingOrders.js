@@ -247,11 +247,7 @@ const PendingOrders = () => {
                             <strong>Qty:</strong> {item.qty || 0}
                           </p>
                         </Col>
-                         <Col md={4}>
-                          <p className="mb-1">
-                            <strong>Portion:</strong> {item.portion || 'N/A'}
-                          </p>
-                        </Col>
+ 
                       </Row>
                     </Card.Body>
                   </Card>
