@@ -19,7 +19,7 @@ import { ORDER_ENDPOINT, FILE_UPLOAD_ENDPOINT } from "../../api/endpoints"; // R
 import { useNavigate } from "react-router-dom";
 import directusClient from "../../api/directusClient";
 
-const PendingOrders = () => {
+const CompletedOrders = () => {
   const navigate = useNavigate();
   const [orderList, setorderList] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -30,7 +30,8 @@ const PendingOrders = () => {
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const userRole = localStorage.getItem("user_role") || "";
-const branchId = localStorage.getItem("branch_id") || "";
+  const branchId = localStorage.getItem("branch_id") || "";
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -57,7 +58,7 @@ const branchId = localStorage.getItem("branch_id") || "";
       setLoading(true);
       try {
         const response = await apiRequest(
-          `${ORDER_ENDPOINT}?filter[_and][0][_and][0][table][branch][_eq]=${branchId}&filter[_and][1][status][_eq]=pending&fields=*,table.*,table.branch.*,Menu_Items.*,Menu_Items.menu_items_id.name`
+          `${ORDER_ENDPOINT}?filter[_and][0][_and][0][table][branch][_eq]=${branchId}&filter[_and][1][status][_eq]=completed&fields=*,table.*,table.branch.*,Menu_Items.*,Menu_Items.menu_items_id.name`
         );
         setorderList(response.data);
         setLoading(false);
@@ -78,15 +79,15 @@ const branchId = localStorage.getItem("branch_id") || "";
     setShowModal(true);
   };
 
-  // PATCH order status to inprogress
+  // PATCH order status to completed
   const handleStatusChange = async () => {
     if (!selectedOrder) return;
     setStatusUpdating(true);
     try {
       await apiRequest(`${ORDER_ENDPOINT}/${selectedOrder.id}`, "PATCH", {
-        status: "inprogress",
+        status: "completed",
       });
-      toast.success("Order status updated to inprogress.");
+      toast.success("Order status updated to completed.");
       // Update UI: remove from list and close modal
       setorderList((prev) =>
         prev.filter((order) => order.id !== selectedOrder.id)
@@ -103,7 +104,7 @@ const branchId = localStorage.getItem("branch_id") || "";
   // DataTable columns
   const columns = [
     { Header: "ID", accessor: "id" },
-    { Header: "Customer", accessor: "Name" },
+      { Header: "Customer", accessor: "Name" },
     { Header: "Status", accessor: "status" },
     {
       Header: "Date Created",
@@ -146,7 +147,7 @@ const branchId = localStorage.getItem("branch_id") || "";
           >
             <Card className="p-3">
               <div className="d-flex justify-content-between align-items-center">
-                <h1>PENDING ORDERS</h1>
+                <h1>COMPLETED ORDERS</h1>
                 <button
                   type="button"
                   className="navbar-toggler bg-light"
@@ -247,6 +248,7 @@ const branchId = localStorage.getItem("branch_id") || "";
                             <strong>Qty:</strong> {item.qty || 0}
                           </p>
                         </Col>
+                    
                       </Row>
                     </Card.Body>
                   </Card>
@@ -256,7 +258,7 @@ const branchId = localStorage.getItem("branch_id") || "";
               )}
 
               {/* Status change button */}
-              {selectedOrder.status === "pending" && (
+              {selectedOrder.status === "" && (
                 <div className="d-flex justify-content-end">
                   <Button
                     variant="success"
@@ -276,7 +278,7 @@ const branchId = localStorage.getItem("branch_id") || "";
                         Updating...
                       </>
                     ) : (
-                      "Mark as In Progress"
+                      "Mark as In Completed"
                     )}
                   </Button>
                 </div>
@@ -293,4 +295,4 @@ const branchId = localStorage.getItem("branch_id") || "";
   );
 };
 
-export default PendingOrders;
+export default CompletedOrders;

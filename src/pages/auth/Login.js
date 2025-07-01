@@ -146,6 +146,7 @@ const Login = () => {
       const user = userResponse.data.data;
       localStorage.setItem("user_role", user.role);
       localStorage.setItem("name", user.first_name + " " + user.last_name);
+      localStorage.setItem("branch_id", user.branches);
 
       const userRole = user.role || "guest"; // Use user.role directly
       if (userRole === ROLE_SUPER_ADMIN || userRole === ROLE_RES_ADMIN) {

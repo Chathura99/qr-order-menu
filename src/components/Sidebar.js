@@ -17,7 +17,8 @@ import {
   FaTimes, // Close icon
   FaHourglassHalf, // For pending orders
   FaPlayCircle, // For in-progress orders
-  FaChartLine, // For reports
+  FaChartLine,
+  FaAlignRight, // For reports
 } from "react-icons/fa";
 import styled from "styled-components";
 import directusClient from "../api/directusClient";
@@ -276,6 +277,12 @@ const Sidebar = ({ role }) => {
       roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
       icon: <FaPlayCircle />,
     },
+     {
+      name: "Completed Orders",
+      path: "/c-orders",
+      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
+      icon: <FaAlignRight />,
+    },
     {
       name: "Reports",
       path: "/reports",
@@ -318,6 +325,7 @@ const Sidebar = ({ role }) => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("user_role");
     localStorage.removeItem("name");
+    localStorage.removeItem("branch_id");
 
     delete directusClient.defaults.headers.common["Authorization"];
     navigate("/");
