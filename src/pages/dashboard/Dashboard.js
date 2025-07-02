@@ -44,7 +44,7 @@ const Dashboard = () => {
       setLoading(true);
       try {
         const response = await apiRequest(
-          `${ORDER_ENDPOINT}?filter[_and][0][_or][0][status][_eq]=pending&filter[_and][0][_or][1][status][_eq]=inprogress&filter[_and][0][_or][2][status][_eq]=completed&filter[_and][1][table][branch][_eq]=${branchId}&fields=*,table.*,table.branch.*,Menu_Items.*,Menu_Items.menu_items_id.name`
+          `${ORDER_ENDPOINT}?filter[_and][0][_or][0][status][_eq]=pending&filter[_and][0][_or][1][status][_eq]=inprogress&filter[_and][0][_or][2][status][_eq]=completed&filter[_and][1][table][branch][_eq]=${branchId}&fields=*,table.*,table.branch.*,Menu_Items.*,Menu_Items.menu_items_id.name&limit=-1`
         );
         setStudentReviews(response.data);
         setLoading(false);

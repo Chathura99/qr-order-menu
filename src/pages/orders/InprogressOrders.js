@@ -59,7 +59,7 @@ const InprogressOrders = () => {
       setLoading(true);
       try {
         const response = await apiRequest(
-          `${ORDER_ENDPOINT}?filter[_and][0][_and][0][table][branch][_eq]=${branchId}&filter[_and][1][status][_eq]=inprogress&fields=*,table.*,table.branch.*,Menu_Items.*,Menu_Items.menu_items_id.name`
+          `${ORDER_ENDPOINT}?filter[_and][0][_and][0][table][branch][_eq]=${branchId}&filter[_and][1][status][_eq]=inprogress&fields=*,table.*,table.branch.*,Menu_Items.*,Menu_Items.menu_items_id.name&limit=-1`
         );
         setorderList(response.data);
         setLoading(false);

@@ -62,7 +62,7 @@ const QRCodePage = () => {
     const fetchMenu = async () => {
       try {
         const catRes = await apiRequest(
-          `${MENU_CATEGORY_ENDPOINT}?filter[menu_items][menu_items_id][branches][branches_id][id][_eq]=${tableData.branch.id}&fields=*,menu_items.*,menu_items.menu_items_id.*,menu_items.menu_items_id.labels.labels_id.*,menu_items.menu_items_id.branches.branches_id.id`
+          `${MENU_CATEGORY_ENDPOINT}?filter[menu_items][menu_items_id][branches][branches_id][id][_eq]=${tableData.branch.id}&fields=*,menu_items.*,menu_items.menu_items_id.*,menu_items.menu_items_id.labels.labels_id.*,menu_items.menu_items_id.branches.branches_id.id&limit=-1`
         );
         // setCategories(catRes.data);
         const branchId = tableData.branch.id;

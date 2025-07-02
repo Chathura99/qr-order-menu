@@ -74,7 +74,7 @@ const QrTable = () => {
         const branchId = localStorage.getItem("branch_id") || ""; // Get branchId
         let apiUrl = `${TABLE_ENDPOINT}?fields=*,branch.*`;
         if (branchId) {
-          apiUrl += `&filter[_and][0][branch][_eq]=${branchId}`;
+          apiUrl += `&filter[_and][0][branch][_eq]=${branchId}&limit=-1`;
         }
         const response = await apiRequest(apiUrl);
         setTables(response.data);
