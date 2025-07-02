@@ -123,6 +123,20 @@ const IconWrapper = styled.div`
   transition: margin-right 0.3s ease-in-out, width 0.3s ease-in-out;
 `;
 
+// Footer: Styling for the copyright/info footer
+const Footer = styled.footer`
+  margin-top: 40px; /* More space above footer */
+  text-align: center;
+  color: #6c757d; /* Muted grey color */
+  font-weight: 500;
+  font-size: 0.9rem;
+  line-height: 1.5;
+
+  strong {
+    color: #495057; /* Darker grey for strong text */
+  }
+`;
+
 const LanguageSwitcher = styled(Dropdown)`
   margin-top: auto; /* Pushes it to the bottom */
   padding: 12px 20px;
@@ -444,6 +458,16 @@ const Sidebar = ({ role }) => {
             </Dropdown.Menu>
           </Dropdown>
         </LanguageSwitcher> */}
+
+        <Footer>
+          <strong>QuickDine - QR Code Restaurant Menu System</strong>
+          <br />
+          Powered by Etech Solutions
+          <br />
+          Contact: 0702534588 / 0775164010
+          <br />
+          &copy; 2025. All rights reserved.
+        </Footer>
       </SidebarContainer>
     </>
   );

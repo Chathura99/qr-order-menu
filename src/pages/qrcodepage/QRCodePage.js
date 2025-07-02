@@ -162,30 +162,18 @@ const QRCodePage = () => {
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
       {tableData && (
         <>
-          {/* Header Section */}
           <div className="header-section">
-            <div className="header-logo">
-              <img
-                src={logoBg}
-                alt="Mr. Kottu Grand Logo"
-                style={{ maxWidth: "100%", maxHeight: "100%" }}
-              />
-            </div>
-            <div className="header-details">
-              <h4>Mr. Kottu Grand</h4>
-              <p className="text-success">● Open - Closes 11.00PM</p>
-            </div>
-            <div className="header-buttons">
+            <div className="header-top-buttons">
               <Button
-                variant="outline-dark"
-                className="me-2 header-btn"
+                variant="outline-light"
+                className="me-2 header-top-btn m-2"
                 onClick={() => (window.location.href = "/")}
               >
                 Login
               </Button>
               <Button
-                variant="outline-dark"
-                className="header-btn"
+                variant="outline-light"
+                className="header-top-btn"
                 onClick={() =>
                   window.open(
                     "https://www.google.com/maps?q=Colombo+Sri+Lanka",
@@ -193,47 +181,81 @@ const QRCodePage = () => {
                   )
                 }
               >
-                📍 Google Map
+                📍 Map
               </Button>
+            </div>
+
+            <div className="header-logo">
+              <img
+                src={logoBg}
+                alt="QuickDine Logo"
+                style={{ maxWidth: "100%", maxHeight: "100%" }}
+              />
+            </div>
+
+            <div className="header-details">
+              <h4>QuickDine</h4>
+              <div className="qr-menu-section">
+                <p>QR Code Restaurant Menu System</p>
+              </div>
             </div>
           </div>
 
           <div className="container mt-4 main-content-area">
-            <Card className="p-4 mb-4 shadow-sm customer-info-card">
-              <h4>
-                Welcome to {tableData.branch?.name} - Table{" "}
-                {tableData.table_number}
-              </h4>
-              <p>
-                {/* <strong>QR Prefix:</strong> {tableData.qr_prefix} */}
-              </p>
-              <Form>
-                <Row>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Name</Form.Label>
-                      <Form.Control
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="Enter your name"
-                        className="form-control-custom"
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Mobile</Form.Label>
-                      <Form.Control
-                        value={mobile}
-                        onChange={(e) => setMobile(e.target.value)}
-                        placeholder="Enter mobile number"
-                        className="form-control-custom"
-                        type="tel" // Use type tel for mobile numbers
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
-              </Form>
+            <Card className="customer-info-card mb-2">
+              {/* Removed p-4 mb-4 shadow-sm from here as defined in CSS */}
+              <div className="card-header-styled">
+                {/* New div for header styling */}
+                <h4 className="card-title-styled">
+                  Welcome to{" "}
+                  <span className="highlight-text">
+                    {tableData.branch?.name}
+                  </span>{" "}
+                  - Table{" "}
+                  <span className="highlight-text">
+                    {tableData.table_number}
+                  </span>
+                </h4>
+              </div>
+              <Card.Body className="card-body-styled">
+                <Form className="customer-info-form">
+                  {/* Added a class for form styling */}
+                  <Row className="form-row-custom">
+                    {/* Added a class for row spacing */}
+                    <Col md={6}>
+                      <Form.Group className="mb-2">
+                        {/* Increased bottom margin for more space */}
+                        <Form.Label className="form-label-styled">
+                          Your Name
+                        </Form.Label>
+                        <Form.Control
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="e.g., John Doe"
+                          className="form-control-custom"
+                        />
+                      </Form.Group>
+                    </Col>
+                    <Col md={6}>
+                      <Form.Group className="mb-4">
+                        {" "}
+                        {/* Increased bottom margin */}
+                        <Form.Label className="form-label-styled">
+                          Mobile Number
+                        </Form.Label>{" "}
+                        {/* Styled label */}
+                        <Form.Control
+                          value={mobile}
+                          onChange={(e) => setMobile(e.target.value)}
+                          placeholder="e.g., +94771234567"
+                          className="form-control-custom"
+                          type="tel" // Use type tel for mobile numbers
+                        />
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                </Form>
+              </Card.Body>
             </Card>
 
             <Tabs

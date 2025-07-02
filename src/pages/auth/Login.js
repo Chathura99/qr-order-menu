@@ -169,7 +169,7 @@ const Login = () => {
     <PageWrapper>
       <Card>
         <FormLogo src={logoIcon} alt="QuickDine - QR - Order Menu Logo" /> {/* New Logo component */}
-        <Title>QuickDineQR - Order Menu System</Title>
+        <Title>QuickDine <hr></hr>QR Code Restaurant Menu System</Title>
         <Form onSubmit={handleLogin} noValidate className="w-100"> {/* Ensure form takes full width */}
           <Form.Group className="mb-3" controlId="formEmail">
             <Form.Label className="visually-hidden">{t("login.email")}</Form.Label>
@@ -222,10 +222,14 @@ const Login = () => {
 
           {error && <Alert variant="danger" className="mt-3 login-alert">{error}</Alert>}
         </Form>
-
         <Footer>
-          <strong>QuickDine - QR - Order Menu SYSTEM</strong> &nbsp;|&nbsp; IT Solutions <br />
-          0702534588 | &copy; 2024. All rights reserved.
+          <strong>QuickDine - QR Code Restaurant Menu System</strong>
+          <br />
+          Powered by Etech Solutions
+          <br />
+          Contact: 0702534588 / 0775164010
+          <br />
+          &copy; 2025. All rights reserved.
         </Footer>
       </Card>
     </PageWrapper>
