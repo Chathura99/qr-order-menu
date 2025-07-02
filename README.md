@@ -1,70 +1,46 @@
-# Getting Started with Create React App
+A Smart QR Menu & Ordering System for Restaurants.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+© 2025. All rights reserved.
 
-## Available Scripts
+🧾 Product Summary
+QuickDine is an intelligent restaurant solution designed to enhance the dining experience and optimize workflow. Customers can scan a QR code at their table to browse a digital menu and place orders directly from their smartphones, eliminating the need to wait for staff. Orders are sent straight to the kitchen, improving efficiency.
 
-In the project directory, you can run:
 
-### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+🔑 Key Features
+🍽️ 1. QR-Based Menu Ordering
+Unique QR codes are assigned to each table.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Customers scan the QR code to access a menu specifically linked to that table and branch.
 
-### `npm test`
+This feature eliminates the need for physical menus and direct waitstaff interaction for ordering.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+🏬 2. Multi-Branch & Table Management
+Allows creation and management of multiple branches.
 
-### `npm run build`
+Each branch can include multiple tables.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+QR codes are automatically generated for every table.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+🧾 3. Categorized Menu System
+Enables the creation of custom menu categories (e.g., Koththu, Rice, Beverages, Others).
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Menu items can be added with images, prices, descriptions, and labels (e.g., New, Hot).
 
-### `npm run eject`
+🛒 4. Cart & Multi-Item Ordering
+Customers can add multiple items to a smart cart.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Orders for all selected items can be placed at once.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Removes the need to call a waiter for ordering.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+📦 5. Order Management Dashboard
+Provides a real-time view of all incoming orders.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Allows updating of order statuses through stages: Pending → In Progress → Completed.
 
-## Learn More
+📤 6. QR Code Generator & Print View
+Automatically generates QR codes for tables.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Offers print-ready QR codes for physical use.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
