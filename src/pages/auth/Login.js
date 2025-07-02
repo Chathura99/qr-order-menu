@@ -168,8 +168,8 @@ const Login = () => {
   return (
     <PageWrapper>
       <Card>
-        <FormLogo src={logoIcon} alt="QR-Order Menu Logo" /> {/* New Logo component */}
-        <Title>QR-Order Menu SYSTEM</Title>
+        <FormLogo src={logoIcon} alt="QuickDine - QR - Order Menu Logo" /> {/* New Logo component */}
+        <Title>QuickDineQR - Order Menu System</Title>
         <Form onSubmit={handleLogin} noValidate className="w-100"> {/* Ensure form takes full width */}
           <Form.Group className="mb-3" controlId="formEmail">
             <Form.Label className="visually-hidden">{t("login.email")}</Form.Label>
@@ -224,7 +224,7 @@ const Login = () => {
         </Form>
 
         <Footer>
-          <strong>QR-Order Menu SYSTEM</strong> &nbsp;|&nbsp; IT Solutions <br />
+          <strong>QuickDine - QR - Order Menu SYSTEM</strong> &nbsp;|&nbsp; IT Solutions <br />
           0702534588 | &copy; 2024. All rights reserved.
         </Footer>
       </Card>

@@ -33,8 +33,13 @@ import { useTranslation } from "react-i18next";
 // --- Styled Components ---
 const SidebarContainer = styled(Nav)`
   height: 100vh;
-  width: ${(props) => (props.$isCollapsed ? "80px" : "300px")}; /* Dynamic width */
-  background: linear-gradient(to bottom, #ff8c00, #ffa500); /* Orange gradient */
+  width: ${(props) =>
+    props.$isCollapsed ? "80px" : "300px"}; /* Dynamic width */
+  background: linear-gradient(
+    to bottom,
+    #ff8c00,
+    #ffa500
+  ); /* Orange gradient */
   border-right: 1px solid rgba(255, 255, 255, 0.2);
   position: fixed;
   top: 0;
@@ -49,7 +54,9 @@ const SidebarContainer = styled(Nav)`
 
   @media (max-width: 768px) {
     width: 250px; /* Full width when open on mobile */
-    transform: translateX(${(props) => (props.$isMobileOpen ? "0" : "-100%")}); /* Slide in/out */
+    transform: translateX(
+      ${(props) => (props.$isMobileOpen ? "0" : "-100%")}
+    ); /* Slide in/out */
   }
 `;
 
@@ -135,10 +142,14 @@ const LanguageSwitcher = styled(Dropdown)`
     align-items: center;
     width: 100%;
     padding: 0;
-    justify-content: ${(props) => (props.$isCollapsed ? "center" : "flex-start")};
+    justify-content: ${(props) =>
+      props.$isCollapsed ? "center" : "flex-start"};
 
     &::after {
-      display: ${(props) => (props.$isCollapsed ? "none" : "block")}; /* Hide dropdown arrow when collapsed */
+      display: ${(props) =>
+        props.$isCollapsed
+          ? "none"
+          : "block"}; /* Hide dropdown arrow when collapsed */
       margin-left: auto;
     }
     &:hover {
@@ -178,7 +189,8 @@ const LanguageSwitcher = styled(Dropdown)`
 const ToggleButton = styled(Button)`
   position: fixed;
   bottom: 15px;
-  left: ${(props) => (props.$isCollapsed ? "90px" : "310px")}; /* Adjust position */
+  left: ${(props) =>
+    props.$isCollapsed ? "90px" : "310px"}; /* Adjust position */
   background-color: #ff8c00;
   border: none;
   color: white;
@@ -251,12 +263,11 @@ const Sidebar = ({ role }) => {
       }
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
     handleResize(); // Call on initial render
 
-    return () => window.removeEventListener('resize', handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
-
 
   const sidebarItems = [
     {
@@ -277,11 +288,17 @@ const Sidebar = ({ role }) => {
       roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
       icon: <FaPlayCircle />,
     },
-     {
+    {
       name: "Completed Orders",
       path: "/c-orders",
       roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
       icon: <FaAlignRight />,
+    },
+    {
+      name: "Tables", // New: Table Management
+      path: "/qr-tables",
+      roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
+      icon: <FaChair />,
     },
     {
       name: "Reports",
@@ -301,12 +318,7 @@ const Sidebar = ({ role }) => {
     //   roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
     //   icon: <FaUtensils />,
     // },
-    // {
-    //   name: "Tables", // New: Table Management
-    //   path: "/tables",
-    //   roles: [ROLE_RES_ADMIN, ROLE_SUPER_ADMIN],
-    //   icon: <FaChair />,
-    // },
+
     {
       name: "Profile",
       path: "/profile",
@@ -363,11 +375,14 @@ const Sidebar = ({ role }) => {
       </ToggleButton>
 
       {/* Overlay for mobile when sidebar is open */}
-      <Overlay $isVisible={isMobileOpen} onClick={() => setIsMobileOpen(false)} />
+      <Overlay
+        $isVisible={isMobileOpen}
+        onClick={() => setIsMobileOpen(false)}
+      />
 
       <SidebarContainer $isCollapsed={isCollapsed} $isMobileOpen={isMobileOpen}>
         <SidebarHeader $isCollapsed={isCollapsed}>
-          {isCollapsed ? "QR" : "QR-Order Menu"}
+          {isCollapsed ? "QR" : "QuickDineQR "}
         </SidebarHeader>
         {sidebarItems
           .filter((item) => item.roles.includes(role))
@@ -378,10 +393,12 @@ const Sidebar = ({ role }) => {
                 onClick={handleLogout}
                 key={item.name}
                 $isCollapsed={isCollapsed}
-                className={location.pathname === item.path ? 'active' : ''} // Set active based on path
-                style={{ cursor: "pointer"}} // Ensure pointer cursor
+                className={location.pathname === item.path ? "active" : ""} // Set active based on path
+                style={{ cursor: "pointer" }} // Ensure pointer cursor
               >
-                <IconWrapper $isCollapsed={isCollapsed}>{item.icon}</IconWrapper>
+                <IconWrapper $isCollapsed={isCollapsed}>
+                  {item.icon}
+                </IconWrapper>
                 <span>{item.name}</span>
               </SidebarLink>
             ) : (
@@ -390,9 +407,11 @@ const Sidebar = ({ role }) => {
                 to={item.path}
                 key={item.name}
                 $isCollapsed={isCollapsed}
-                className={location.pathname === item.path ? 'active' : ''} // Set active based on path
+                className={location.pathname === item.path ? "active" : ""} // Set active based on path
               >
-                <IconWrapper $isCollapsed={isCollapsed}>{item.icon}</IconWrapper>
+                <IconWrapper $isCollapsed={isCollapsed}>
+                  {item.icon}
+                </IconWrapper>
                 <span>{item.name}</span>
               </SidebarLink>
             )
