@@ -462,7 +462,7 @@ const Sidebar = ({ role }) => {
         <Footer>
           <strong>QuickDine - QR Code Restaurant Menu System</strong>
           <br />
-          Powered by Etech Solutions
+          Powered by ETech Solutions
           <br />
           Contact: 0702534588 / 0775164010
           <br />
