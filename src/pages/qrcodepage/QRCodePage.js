@@ -343,7 +343,7 @@ const QRCodePage = () => {
                   variant="success"
                   onClick={handlePlaceOrder}
                   className="place-order-btn"
-                  disabled={cart.length === 0 || !name.trim() || !mobile.trim()}
+                  disabled={cart.length === 0}
                 >
                   Place Order
                 </Button>
