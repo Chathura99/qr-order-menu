@@ -58,7 +58,7 @@ const CompletedOrders = () => {
       setLoading(true);
       try {
         const response = await apiRequest(
-          `${ORDER_ENDPOINT}?filter[_and][0][_and][0][table][branch][_eq]=${branchId}&filter[_and][1][status][_eq]=completed&fields=*,table.*,table.branch.*,Menu_Items.*,Menu_Items.menu_items_id.name&limit=-1`
+          `${ORDER_ENDPOINT}?filter[_and][0][_and][0][table][branch][_eq]=${branchId}&filter[_and][1][status][_eq]=completed&fields=*,table.*,table.branch.*,Menu_Items.*,Menu_Items.menu_items_id.name,Menu_Items.menu_items_id.price&limit=-1`
         );
         setorderList(response.data);
         setLoading(false);
@@ -246,6 +246,11 @@ const CompletedOrders = () => {
                         <Col md={4}>
                           <p className="mb-1">
                             <strong>Qty:</strong> {item.qty || 0}
+                          </p>
+                        </Col>
+                        <Col md={4}>
+                          <p className="mb-1">
+                            <strong>Unit Price:</strong> {item.menu_items_id?.price || 0} LKR
                           </p>
                         </Col>
                     

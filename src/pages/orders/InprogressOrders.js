@@ -30,8 +30,7 @@ const InprogressOrders = () => {
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const userRole = localStorage.getItem("user_role") || "";
-    const branchId = localStorage.getItem("branch_id") || "";
-
+  const branchId = localStorage.getItem("branch_id") || "";
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -59,7 +58,7 @@ const InprogressOrders = () => {
       setLoading(true);
       try {
         const response = await apiRequest(
-          `${ORDER_ENDPOINT}?filter[_and][0][_and][0][table][branch][_eq]=${branchId}&filter[_and][1][status][_eq]=inprogress&fields=*,table.*,table.branch.*,Menu_Items.*,Menu_Items.menu_items_id.name&limit=-1`
+          `${ORDER_ENDPOINT}?filter[_and][0][_and][0][table][branch][_eq]=${branchId}&filter[_and][1][status][_eq]=inprogress&fields=*,table.*,table.branch.*,Menu_Items.*,Menu_Items.menu_items_id.name,Menu_Items.menu_items_id.price&limit=-1`
         );
         setorderList(response.data);
         setLoading(false);
@@ -105,7 +104,7 @@ const InprogressOrders = () => {
   // DataTable columns
   const columns = [
     { Header: "ID", accessor: "id" },
-      { Header: "Customer", accessor: "Name" },
+    { Header: "Customer", accessor: "Name" },
     { Header: "Status", accessor: "status" },
     {
       Header: "Date Created",
@@ -249,7 +248,12 @@ const InprogressOrders = () => {
                             <strong>Qty:</strong> {item.qty || 0}
                           </p>
                         </Col>
-                    
+                        <Col md={4}>
+                          <p className="mb-1">
+                            <strong>Unit Price:</strong>{" "}
+                            {item.menu_items_id?.price || 0} LKR
+                          </p>
+                        </Col>
                       </Row>
                     </Card.Body>
                   </Card>
