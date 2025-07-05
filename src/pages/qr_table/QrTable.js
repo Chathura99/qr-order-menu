@@ -19,6 +19,7 @@ import { SETTINGS_ENDPOINT, TABLE_ENDPOINT } from "../../api/endpoints";
 import directusClient from "../../api/directusClient";
 import QRCode from "react-qr-code";
 import { FaQrcode, FaEye, FaFilePdf, FaDownload } from "react-icons/fa"; // Added FaFilePdf, FaDownload icons
+import styled from "styled-components";
 
 import jsPDF from "jspdf"; // Import jsPDF
 import html2canvas from "html2canvas"; // Import html2canvas
@@ -42,6 +43,20 @@ const QrTable = () => {
 
   const QR_BASE_URL =
     process.env.REACT_APP_QR_BASE_URL || "http://localhost:3000/qr/";
+
+  // Footer: Styling for the copyright/info footer
+  const Footer = styled.footer`
+    margin-top: 40px; /* More space above footer */
+    text-align: center;
+    color: rgb(255, 255, 255); /* Muted grey color */
+    font-weight: 500;
+    font-size: 0.9rem;
+    line-height: 1.5;
+
+    strong {
+      color: rgb(210, 210, 210); /* Darker grey for strong text */
+    }
+  `;
 
   // Effect to verify user authentication
   useEffect(() => {
@@ -310,7 +325,10 @@ const QrTable = () => {
                 Scan this QR code to access the menu for Table{" "}
                 {selectedTableNumber}.
               </p>
-              <p className="qr-value-url">URL: {selectedQrValue}</p>
+              {/* <p className="qr-value-url">URL: {selectedQrValue}</p> */}
+              QuickDine - Powered by ETech Solutions
+              <br />
+              Contact: 0702534588 / 0775164010
             </div>
           ) : (
             <p className="text-muted">QR code value not available.</p>
