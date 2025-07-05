@@ -315,20 +315,28 @@ const QrTable = () => {
         </Modal.Header>
         <Modal.Body className="qr-modal-body text-center">
           {selectedQrValue ? (
-            <div className="qr-code-large-display" ref={qrCodeRef}>
-              {" "}
-              {/* Attach ref here */}
+            <div className="qr-code-large-display text-center" ref={qrCodeRef}>
               <QRCode value={selectedQrValue} size={256} level="H" />
-              <p className="qr-value-text mt-3">{homeData.qr_text_1 || ""}</p>
-              <p className="qr-value-text mt-3">{homeData.qr_text_2 || ""}</p>
-              <p className="qr-value-text mt-3">
-                Scan this QR code to access the menu for Table{" "}
-                {selectedTableNumber}.
+
+              {/* Main QR message texts */}
+              <p className="qr-value-text mt-4 fw-bold fs-5">
+                {homeData.qr_text_1 || ""}
               </p>
-              {/* <p className="qr-value-url">URL: {selectedQrValue}</p> */}
-              QuickDine - Powered by ETech Solutions
-              <br />
-              Contact: 0702534588 / 0775164010
+              <p className="qr-value-text mt-2 fw-medium fs-6">
+                {homeData.qr_text_2 || ""}
+              </p>
+              <p className="qr-value-text mt-3 fw-semibold fs-6">
+                <strong>Scan this QR code</strong> to access the menu for{" "}
+                <strong>Table {selectedTableNumber}</strong>.
+              </p>
+
+              {/* Footer text */}
+              <p className="mt-4 fw-light text-muted small">
+                QuickDine - Powered by ETech Solutions
+                <br />
+                Contact: <a href="tel:0702534588">0702534588</a> /{" "}
+                <a href="tel:0775164010">0775164010</a>
+              </p>
             </div>
           ) : (
             <p className="text-muted">QR code value not available.</p>
