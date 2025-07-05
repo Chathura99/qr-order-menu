@@ -211,7 +211,8 @@ const Login = () => {
     <PageWrapper>
       <Card>
         {/* <FormLogo src={logoIcon} alt="QuickDine - QR - Order Menu Logo" /> New Logo component */}
-        <Title>QuickDine</Title>
+        <Title className="mb-1">QuickDine</Title>
+        <p>{homeData?.Name || ""}</p>
         {homeData?.logo && (
           <ImageLoader
             imageId={homeData.logo || ""}

@@ -30,6 +30,10 @@ import {
 } from "../api/roles.js";
 import { useTranslation } from "react-i18next";
 
+import { apiRequest } from "../hooks/apiRequest";
+import { toast } from "react-toastify";
+import { SETTINGS_ENDPOINT } from "../api/endpoints";
+
 // --- Styled Components ---
 const MAIN_COLOR = "var(--main-color)";
 
@@ -286,6 +290,28 @@ const Sidebar = ({ role }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+    const [homeData, setHomeData] = useState(null);
+
+  useEffect(() => {
+    // Fetch general home page data
+    const fetchHomePageData = async () => {
+      try {
+        const response = await apiRequest(`${SETTINGS_ENDPOINT}`);
+        if (response.data) {
+          setHomeData(response.data); // Assuming it returns an array, take the first item
+        } else {
+          toast.info("No home page general data found.");
+        }
+      } catch (error) {
+        console.error("Failed to fetch home page general data:", error);
+        toast.error("Failed to load home page general content.");
+      } finally {
+      }
+    };
+
+    fetchHomePageData();
+  }, []);
+
   const sidebarItems = [
     {
       name: "Dashboard",
@@ -401,7 +427,7 @@ const Sidebar = ({ role }) => {
         <SidebarHeader $isCollapsed={isCollapsed}>
           {isCollapsed ? "QR" : "QuickDineQR"}
           <hr></hr>
-          {isCollapsed ? "" : "Restaurant Name"}
+          {isCollapsed ? "" : homeData?.Name || ""}
         </SidebarHeader>
         {sidebarItems
           .filter((item) => item.roles.includes(role))

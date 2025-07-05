@@ -212,9 +212,9 @@ const QRCodePage = () => {
                 alt="QuickDine Logo"
                 style={{ maxWidth: "100%", maxHeight: "100%" }}
               /> */}
-              {homeData.logo && (
+              {homeData?.logo && (
                 <ImageLoader
-                  imageId={homeData.logo}
+                  imageId={homeData?.logo || ""}
                   altText="Company Logo"
                   className="company-logo mb-4"
                   style={{ maxWidth: "100%", maxHeight: "100%" }}
