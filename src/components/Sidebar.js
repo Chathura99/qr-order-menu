@@ -37,8 +37,8 @@ const SidebarContainer = styled(Nav)`
     props.$isCollapsed ? "80px" : "300px"}; /* Dynamic width */
   background: linear-gradient(
     to bottom,
-    #ff8c00,
-    #ffa500
+    #014F42,
+    #014F42
   ); /* Orange gradient */
   border-right: 1px solid rgba(255, 255, 255, 0.2);
   position: fixed;
@@ -127,13 +127,13 @@ const IconWrapper = styled.div`
 const Footer = styled.footer`
   margin-top: 40px; /* More space above footer */
   text-align: center;
-  color: #6c757d; /* Muted grey color */
+  color:rgb(255, 255, 255); /* Muted grey color */
   font-weight: 500;
   font-size: 0.9rem;
   line-height: 1.5;
 
   strong {
-    color: #495057; /* Darker grey for strong text */
+    color:rgb(210, 210, 210); /* Darker grey for strong text */
   }
 `;
 
@@ -187,7 +187,7 @@ const LanguageSwitcher = styled(Dropdown)`
       color: white;
     }
     &.active {
-      background-color: #ff8c00; /* Darker orange active */
+      background-color: #014F42; /* Darker orange active */
       color: white;
     }
   }
@@ -205,7 +205,7 @@ const ToggleButton = styled(Button)`
   bottom: 15px;
   left: ${(props) =>
     props.$isCollapsed ? "90px" : "310px"}; /* Adjust position */
-  background-color: #ff8c00;
+  background-color: #014F42;
   border: none;
   color: white;
   font-size: 1.5em;
@@ -222,7 +222,7 @@ const ToggleButton = styled(Button)`
   @media (max-width: 768px) {
     left: 15px; /* Fixed position on mobile */
     top: 15px;
-    background-color: #ff8c00; /* Visible on mobile */
+    background-color: #014F42; /* Visible on mobile */
     display: block; /* Show on mobile */
   }
 
@@ -396,7 +396,9 @@ const Sidebar = ({ role }) => {
 
       <SidebarContainer $isCollapsed={isCollapsed} $isMobileOpen={isMobileOpen}>
         <SidebarHeader $isCollapsed={isCollapsed}>
-          {isCollapsed ? "QR" : "QuickDineQR "}
+          {isCollapsed ? "QR" : "QuickDineQR"}
+          <hr></hr>
+          {isCollapsed ? "" : "Restaurant Name"}
         </SidebarHeader>
         {sidebarItems
           .filter((item) => item.roles.includes(role))

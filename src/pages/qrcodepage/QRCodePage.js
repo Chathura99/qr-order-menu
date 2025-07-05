@@ -22,6 +22,7 @@ import {
   MENU_CATEGORY_ENDPOINT,
   TABLE_ENDPOINT,
   ORDER_ENDPOINT,
+  SETTINGS_ENDPOINT,
 } from "../../api/endpoints";
 import "./QRCodePage.css"; // Import your CSS file
 import { tab } from "@material-tailwind/react";
@@ -35,6 +36,8 @@ const QRCodePage = () => {
   const [cart, setCart] = useState([]);
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
+
+  const [homeData, setHomeData] = useState(null);
 
   useEffect(() => {
     const fetchTable = async () => {
@@ -53,7 +56,25 @@ const QRCodePage = () => {
         setLoading(false);
       }
     };
+
+    // Fetch general home page data
+    const fetchHomePageData = async () => {
+      try {
+        const response = await apiRequest(`${SETTINGS_ENDPOINT}`);
+        if (response.data) {
+          setHomeData(response.data); // Assuming it returns an array, take the first item
+        } else {
+          toast.info("No home page general data found.");
+        }
+      } catch (error) {
+        console.error("Failed to fetch home page general data:", error);
+        toast.error("Failed to load home page general content.");
+      } finally {
+      }
+    };
+
     fetchTable();
+    fetchHomePageData();
   }, [qr_prefix]);
 
   useEffect(() => {
@@ -123,19 +144,19 @@ const QRCodePage = () => {
   };
 
   const handlePlaceOrder = async () => {
-    if (!name.trim() || !mobile.trim() || cart.length === 0) {
-      toast.error("Please fill name, mobile and select at least one item.");
+    if (cart.length === 0) {
+      toast.error("Select at least one item.");
       return;
     }
 
-    if (mobile.trim().length < 10 || !/^\d+$/.test(mobile.trim())) {
-      toast.error("Please enter a valid mobile number (at least 10 digits).");
-      return;
-    }
+    // if (mobile.trim().length < 10 || !/^\d+$/.test(mobile.trim())) {
+    //   toast.error("Please enter a valid mobile number (at least 10 digits).");
+    //   return;
+    // }
 
     try {
       const orderPayload = {
-        Name: name.trim(),
+        Name: name.trim() || `order_${Date.now()}`,
         Mobile_Number: mobile.trim(),
         status: "pending",
         table: tableData.id,
@@ -174,11 +195,11 @@ const QRCodePage = () => {
               <Button
                 variant="outline-light"
                 className="header-top-btn"
-                onClick={() =>
-                  window.open(
-                    "https://www.google.com/maps?q=Colombo+Sri+Lanka",
-                    "_blank"
-                  )
+                onClick={
+                  () =>
+                    (window.location.href =
+                      homeData.google_map_link || "https://maps.google.com")
+                  // window.open(homeData.location || "https://maps.google.com")
                 }
               >
                 📍 Map
@@ -186,17 +207,26 @@ const QRCodePage = () => {
             </div>
 
             <div className="header-logo">
-              <img
+              {/* <img
                 src={logoBg}
                 alt="QuickDine Logo"
                 style={{ maxWidth: "100%", maxHeight: "100%" }}
-              />
+              /> */}
+              {homeData.logo && (
+                <ImageLoader
+                  imageId={homeData.logo}
+                  altText="Company Logo"
+                  className="company-logo mb-4"
+                  style={{ maxWidth: "100%", maxHeight: "100%" }}
+                />
+              )}
             </div>
 
             <div className="header-details">
-              <h4>QuickDine</h4>
+              <h4>QuickDine - {homeData.Name || ""}</h4>
               <div className="qr-menu-section">
-                <p>QR Code Restaurant Menu System</p>
+                {/* <p>QR Code Restaurant Menu System</p> */}
+                 <p>{homeData.location || ""}</p>
               </div>
             </div>
           </div>
@@ -226,7 +256,7 @@ const QRCodePage = () => {
                       <Form.Group className="mb-2">
                         {/* Increased bottom margin for more space */}
                         <Form.Label className="form-label-styled">
-                          Your Name
+                          Your Name (Not Mandatory)
                         </Form.Label>
                         <Form.Control
                           value={name}
@@ -241,7 +271,7 @@ const QRCodePage = () => {
                         {" "}
                         {/* Increased bottom margin */}
                         <Form.Label className="form-label-styled">
-                          Mobile Number
+                          Mobile Number (Not Mandatory)
                         </Form.Label>{" "}
                         {/* Styled label */}
                         <Form.Control

@@ -1,12 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import directusClient from "../../api/directusClient";
 import { Form, Button, Alert, InputGroup, Spinner } from "react-bootstrap"; // Removed Container, Row, Col as they are not needed with single column Card
 import { useTranslation } from "react-i18next";
-import { ROLE_CUSTOMER, ROLE_SUPER_ADMIN, ROLE_RES_ADMIN } from "../../api/roles";
+import {
+  ROLE_CUSTOMER,
+  ROLE_SUPER_ADMIN,
+  ROLE_RES_ADMIN,
+} from "../../api/roles";
 import styled from "styled-components";
 import logoIcon from "../../images/logo.png"; // Assuming a smaller logo icon for the top of the form
 import { FaUser, FaLock } from "react-icons/fa"; // Ensure react-icons is installed
+import { apiRequest } from "../../hooks/apiRequest";
+import { toast } from "react-toastify";
+import { SETTINGS_ENDPOINT } from "../../api/endpoints";
+import ImageLoader from "../../components/ImageLoader";
 
 // --- Styled Components ---
 
@@ -18,7 +26,7 @@ const PageWrapper = styled.div`
   align-items: center;
   padding: 20px;
   background-color: #f5f7fa; /* Consistent light background from QRCodePage */
-  font-family: 'Poppins', sans-serif; /* Consistent font */
+  font-family: "Poppins", sans-serif; /* Consistent font */
 `;
 
 // Card: Main container for login form, with shadow, rounded corners, and responsive width
@@ -34,7 +42,7 @@ const Card = styled.div`
   align-items: center; /* Center content within the card */
   padding: 40px 35px; /* Padding for the content inside the card */
 
-  @media(max-width: 768px) {
+  @media (max-width: 768px) {
     padding: 30px 25px; /* Adjusted padding for mobile */
     border-radius: 15px; /* Slightly less rounded on mobile */
   }
@@ -50,15 +58,15 @@ const FormLogo = styled.img`
 
 // Title: Styling for the main login title
 const Title = styled.h2`
-  color: #ff8c00; /* Consistent orange color */
-  font-family: 'Montserrat', sans-serif; /* Bolder font for titles */
+  color: #014f42; /* Consistent orange color */
+  font-family: "Montserrat", sans-serif; /* Bolder font for titles */
   font-weight: 800; /* Extra bold */
   margin-bottom: 2.5rem; /* More space below title */
   font-size: 2.2rem; /* Larger font size */
   text-align: center; /* Ensure title is centered */
   line-height: 1.2;
 
-  @media(max-width: 768px) {
+  @media (max-width: 768px) {
     font-size: 1.8rem;
     margin-bottom: 2rem;
   }
@@ -66,7 +74,7 @@ const Title = styled.h2`
 
 // Submit Button: Primary button styling
 const SubmitButton = styled(Button)`
-  background: linear-gradient(to right, #ff8c00, #ffa500); /* Orange gradient */
+  background: linear-gradient(to right, #014f42, #014f42); /* Orange gradient */
   border: none;
   font-weight: 700; /* Bolder font */
   padding: 14px 0; /* More padding */
@@ -76,9 +84,14 @@ const SubmitButton = styled(Button)`
   box-shadow: 0 4px 12px rgba(255, 140, 0, 0.25); /* Subtle shadow */
   transition: all 0.3s ease;
 
-  &:hover, &:focus {
-    background: linear-gradient(to right, #e07b00, #e68a21); /* Darker gradient on hover */
-    box-shadow: 0 6px 18px rgba(255, 140, 0, 0.35); /* More pronounced shadow */
+  &:hover,
+  &:focus {
+    background: linear-gradient(
+      to right,
+      rgb(61, 61, 61),
+      rgb(82, 82, 82)
+    ); /* Darker gradient on hover */
+    box-shadow: 0 6px 18px rgba(64, 64, 64, 0.35); /* More pronounced shadow */
     transform: translateY(-2px); /* Slight lift */
     border: none; /* Ensure no border appears on hover/focus */
   }
@@ -91,7 +104,7 @@ const SubmitButton = styled(Button)`
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
-    background: #ffc107; /* Lighter orange when disabled */
+    background: rgb(73, 73, 73); /* Lighter orange when disabled */
     box-shadow: none;
     transform: none;
   }
@@ -115,7 +128,7 @@ const Footer = styled.footer`
 const IconWrapper = styled(InputGroup.Text)`
   background-color: #f8f9fa; /* Slightly off-white background for icon */
   border-right: 0;
-  color: #ff8c00; /* Orange icon color */
+  color: #014f42; /* Orange icon color */
   font-size: 1.2rem; /* Slightly larger icon */
   border-radius: 10px 0 0 10px; /* Match input border-radius */
   border: 1px solid #ced4da; /* Match input border */
@@ -136,11 +149,16 @@ const Login = () => {
     setError(null); // Clear previous errors
     setLoading(true); // Set loading true on submission
     try {
-      const response = await directusClient.post("/auth/login", { email, password });
+      const response = await directusClient.post("/auth/login", {
+        email,
+        password,
+      });
       const { access_token } = response.data.data;
 
       localStorage.setItem("access_token", access_token);
-      directusClient.defaults.headers.common["Authorization"] = `Bearer ${access_token}`;
+      directusClient.defaults.headers.common[
+        "Authorization"
+      ] = `Bearer ${access_token}`;
 
       const userResponse = await directusClient.get("/users/me");
       const user = userResponse.data.data;
@@ -165,15 +183,54 @@ const Login = () => {
     }
   };
 
+  const [homeData, setHomeData] = useState(null);
+
+  useEffect(() => {
+    // Fetch general home page data
+    const fetchHomePageData = async () => {
+      try {
+        const response = await apiRequest(`${SETTINGS_ENDPOINT}`);
+        if (response.data) {
+          setHomeData(response.data); // Assuming it returns an array, take the first item
+        } else {
+          toast.info("No home page general data found.");
+        }
+      } catch (error) {
+        console.error("Failed to fetch home page general data:", error);
+        toast.error("Failed to load home page general content.");
+      } finally {
+      }
+    };
+
+    fetchHomePageData();
+  }, []);
+
   return (
     <PageWrapper>
       <Card>
-        <FormLogo src={logoIcon} alt="QuickDine - QR - Order Menu Logo" /> {/* New Logo component */}
-        <Title>QuickDine <hr></hr>QR Code Restaurant Menu System</Title>
-        <Form onSubmit={handleLogin} noValidate className="w-100"> {/* Ensure form takes full width */}
+        {/* <FormLogo src={logoIcon} alt="QuickDine - QR - Order Menu Logo" /> New Logo component */}
+        <Title>QuickDine</Title>
+        {homeData.logo && (
+          <ImageLoader
+            imageId={homeData.logo}
+            altText="Company Logo"
+            className="company-logo mb-4"
+            style={{ maxWidth: "100px", maxHeight: "100px" }}
+          />
+        )}
+        <Title>
+          <hr></hr>QR Code Restaurant Menu System
+        </Title>
+        <Form onSubmit={handleLogin} noValidate className="w-100">
+          {" "}
+          {/* Ensure form takes full width */}
           <Form.Group className="mb-3" controlId="formEmail">
-            <Form.Label className="visually-hidden">{t("login.email")}</Form.Label>
-            <InputGroup className="input-group-custom"> {/* Add custom class */}
+            <Form.Label className="visually-hidden">
+              {t("login.email")}
+            </Form.Label>
+            <InputGroup className="input-group-custom">
+              {" "}
+              {/* Add custom class */}
               <IconWrapper>
                 <FaUser />
               </IconWrapper>
@@ -189,10 +246,13 @@ const Login = () => {
               />
             </InputGroup>
           </Form.Group>
-
           <Form.Group className="mb-3" controlId="formPassword">
-            <Form.Label className="visually-hidden">{t("login.password")}</Form.Label>
-            <InputGroup className="input-group-custom"> {/* Add custom class */}
+            <Form.Label className="visually-hidden">
+              {t("login.password")}
+            </Form.Label>
+            <InputGroup className="input-group-custom">
+              {" "}
+              {/* Add custom class */}
               <IconWrapper>
                 <FaLock />
               </IconWrapper>
@@ -208,19 +268,32 @@ const Login = () => {
               />
             </InputGroup>
           </Form.Group>
-
-          <SubmitButton type="submit" size="lg" className="w-100" disabled={loading}>
+          <SubmitButton
+            type="submit"
+            size="lg"
+            className="w-100"
+            disabled={loading}
+          >
             {loading ? (
               <>
-                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
                 <span className="ms-2">Logging in...</span>
               </>
             ) : (
               t("login.submit")
             )}
           </SubmitButton>
-
-          {error && <Alert variant="danger" className="mt-3 login-alert">{error}</Alert>}
+          {error && (
+            <Alert variant="danger" className="mt-3 login-alert">
+              {error}
+            </Alert>
+          )}
         </Form>
         <Footer>
           <strong>QuickDine - QR Code Restaurant Menu System</strong>

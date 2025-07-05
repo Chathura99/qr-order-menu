@@ -20,7 +20,7 @@ body {
 
 /* Header Section */
 .header-section {
-  background: linear-gradient(to right, #ff8c00, #ffa500); /* A more defined orange gradient */
+  background: linear-gradient(to right, #014F42, #014F42); /* A more defined orange gradient */
   color: #fff; /* White text for better contrast on the dark header */
   padding: 30px 20px 30px 120px; /* Increased padding for a more substantial header */
   display: flex;
@@ -143,7 +143,7 @@ body {
 }
 
 .form-control-custom:focus {
-  border-color: #ff8c00;
+  border-color: #014F42;
   box-shadow: 0 0 0 0.25rem rgba(255, 140, 0, 0.3); /* Softer glow */
   outline: none;
 }
@@ -191,9 +191,9 @@ body {
 }
 
 .custom-tabs-container .nav-link.active {
-  background: linear-gradient(to right, #ff8c00, #ffc107); /* Orange to yellow gradient for active tab */
-  color: #fff; /* White text for active tab */
-  box-shadow: 0 5px 15px rgba(255, 140, 0, 0.3); /* Stronger, softer shadow for active tab */
+  background: linear-gradient(to right, #014F42, #014F42); /* Orange to yellow gradient for active tab */
+  color: #fff !important; /* White text for active tab */
+  box-shadow: 0 5px 15px rgba(97, 97, 97, 0.3); /* Stronger, softer shadow for active tab */
   transform: translateY(-3px); /* More pronounced lift for active tab */
   font-size: 1.05rem; /* Slightly larger for active */
 }
@@ -262,7 +262,7 @@ body {
 .menu-item-card .item-price {
   font-size: 1.6em; /* Larger price */
   font-weight: 800; /* Extra bold price */
-  color: #ff8c00;
+  color: #014F42;
   margin-top: auto;
   text-align: right;
   padding-top: 20px; /* More space above price */
@@ -270,8 +270,8 @@ body {
 }
 
 .menu-item-card .add-to-cart-btn {
-  background-color: #ff8c00;
-  border-color: #ff8c00;
+  background-color: #014F42;
+  border-color: #014F42;
   width: 100%;
   margin-top: 25px; /* More space above button */
   font-weight: 700;
@@ -279,14 +279,14 @@ body {
   padding: 14px 15px; /* Larger padding */
   font-size: 1.1rem;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(255, 140, 0, 0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .menu-item-card .add-to-cart-btn:hover {
-  background-color: #e07b00;
-  border-color: #e07b00;
+  background-color: #014F42;
+  border-color: #014F42;
   transform: translateY(-3px); /* More pronounced lift on hover */
-  box-shadow: 0 6px 15px rgba(255, 140, 0, 0.3);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
 
 /* Item Labels (Badges) */

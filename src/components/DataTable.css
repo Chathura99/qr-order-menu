@@ -19,7 +19,7 @@
 }
 
 .custom-table thead th {
-  background-color: #ff8c00; /* Orange header background */
+  background-color: #014F42; /* Orange header background */
   color: white; /* White text for headers */
   font-weight: 700; /* Bolder header text */
   padding: 15px 20px; /* More padding for headers */
@@ -139,7 +139,7 @@
 }
 
 .pagination-input:focus {
-  border-color: #ff8c00;
+  border-color: #014F42;
   box-shadow: 0 0 0 0.25rem rgba(255, 140, 0, 0.25);
   outline: none;
 }
@@ -152,8 +152,8 @@
 
 .pagination-btn {
   background-color: transparent;
-  color: #ff8c00; /* Orange text */
-  border: 1px solid #ff8c00; /* Orange border */
+  color: #014F42; /* Orange text */
+  border: 1px solid #014F42; /* Orange border */
   border-radius: 8px; /* Rounded buttons */
   padding: 8px 15px;
   font-weight: 600;
@@ -162,9 +162,9 @@
 }
 
 .pagination-btn:hover:not(:disabled) {
-  background-color: #ff8c00; /* Solid orange on hover */
+  background-color: #014F42; /* Solid orange on hover */
   color: white;
-  border-color: #ff8c00;
+  border-color: #014F42;
   transform: translateY(-1px);
   box-shadow: 0 2px 5px rgba(255, 140, 0, 0.2);
 }
@@ -195,7 +195,7 @@
 }
 
 .pagination-select:focus {
-  border-color: #ff8c00;
+  border-color: #014F42;
   box-shadow: 0 0 0 0.25rem rgba(255, 140, 0, 0.25);
   outline: none;
 }
