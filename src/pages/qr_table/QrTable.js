@@ -15,13 +15,13 @@ import "react-toastify/dist/ReactToastify.css";
 import Sidebar from "../../components/Sidebar";
 import BurgerSpinner from "../../components/BurgerSpinner";
 import { apiRequest } from "../../hooks/apiRequest";
-import { TABLE_ENDPOINT } from "../../api/endpoints";
+import { SETTINGS_ENDPOINT, TABLE_ENDPOINT } from "../../api/endpoints";
 import directusClient from "../../api/directusClient";
 import QRCode from "react-qr-code";
-import { FaQrcode, FaEye, FaFilePdf, FaDownload } from 'react-icons/fa'; // Added FaFilePdf, FaDownload icons
+import { FaQrcode, FaEye, FaFilePdf, FaDownload } from "react-icons/fa"; // Added FaFilePdf, FaDownload icons
 
-import jsPDF from 'jspdf'; // Import jsPDF
-import html2canvas from 'html2canvas'; // Import html2canvas
+import jsPDF from "jspdf"; // Import jsPDF
+import html2canvas from "html2canvas"; // Import html2canvas
 
 const QrTable = () => {
   const [tables, setTables] = useState([]);
@@ -34,14 +34,14 @@ const QrTable = () => {
   // New state for PDF dimensions
   const [pdfWidth, setPdfWidth] = useState(210); // Default A4 width in mm
   const [pdfHeight, setPdfHeight] = useState(297); // Default A4 height in mm
-  const [pdfOrientation, setPdfOrientation] = useState('portrait'); // Default orientation
+  const [pdfOrientation, setPdfOrientation] = useState("portrait"); // Default orientation
 
   const qrCodeRef = useRef(null); // Ref to the QR code element in the modal
 
   const userRole = localStorage.getItem("user_role") || "";
 
-  const QR_BASE_URL = process.env.REACT_APP_QR_BASE_URL || "http://localhost:3000/qr/";
-
+  const QR_BASE_URL =
+    process.env.REACT_APP_QR_BASE_URL || "http://localhost:3000/qr/";
 
   // Effect to verify user authentication
   useEffect(() => {
@@ -51,7 +51,9 @@ const QrTable = () => {
         if (!token) {
           throw new Error("No access token found");
         }
-        directusClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        directusClient.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${token}`;
         await directusClient.get("/users/me");
       } catch (err) {
         console.error("Authentication check failed:", err);
@@ -60,10 +62,34 @@ const QrTable = () => {
         localStorage.removeItem("name");
         delete directusClient.defaults.headers.common["Authorization"];
         window.location.href = "/";
-        toast.error('Session expired or failed to fetch profile. Please log in again.');
+        toast.error(
+          "Session expired or failed to fetch profile. Please log in again."
+        );
       }
     };
     fetchUserProfile();
+  }, []);
+
+  const [homeData, setHomeData] = useState(null);
+
+  useEffect(() => {
+    // Fetch general home page data
+    const fetchHomePageData = async () => {
+      try {
+        const response = await apiRequest(`${SETTINGS_ENDPOINT}`);
+        if (response.data) {
+          setHomeData(response.data); // Assuming it returns an array, take the first item
+        } else {
+          toast.info("No home page general data found.");
+        }
+      } catch (error) {
+        console.error("Failed to fetch home page general data:", error);
+        toast.error("Failed to load home page general content.");
+      } finally {
+      }
+    };
+
+    fetchHomePageData();
   }, []);
 
   // Effect to fetch table data
@@ -112,8 +138,8 @@ const QrTable = () => {
         useCORS: true, // Important for images/SVGs from other origins, even if local
       });
 
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF(pdfOrientation, 'mm', [pdfWidth, pdfHeight]);
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF(pdfOrientation, "mm", [pdfWidth, pdfHeight]);
 
       const imgWidth = 100; // Fixed image width in PDF (mm)
       const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
@@ -122,13 +148,15 @@ const QrTable = () => {
       const x = (pdfWidth - imgWidth) / 2;
       const y = (pdfHeight - imgHeight) / 2;
 
-      pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+      pdf.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
 
       // Add text below the QR code
       pdf.setFontSize(12);
       pdf.setTextColor(50, 50, 50); // Dark grey text
       const text = `Scan for Table ${selectedTableNumber} Menu`;
-      const textWidth = pdf.getStringUnitWidth(text) * pdf.internal.getFontSize() / pdf.internal.scaleFactor;
+      const textWidth =
+        (pdf.getStringUnitWidth(text) * pdf.internal.getFontSize()) /
+        pdf.internal.scaleFactor;
       const textX = (pdfWidth - textWidth) / 2;
       const textY = y + imgHeight + 10; // 10mm below the image
 
@@ -145,17 +173,17 @@ const QrTable = () => {
   // Handle dimension preset change
   const handleDimensionPresetChange = (e) => {
     const preset = e.target.value;
-    setPdfOrientation('portrait'); // Reset to portrait for presets
-    if (preset === 'A4') {
+    setPdfOrientation("portrait"); // Reset to portrait for presets
+    if (preset === "A4") {
       setPdfWidth(210);
       setPdfHeight(297);
-    } else if (preset === 'A5') {
+    } else if (preset === "A5") {
       setPdfWidth(148);
       setPdfHeight(210);
-    } else if (preset === 'Square') {
+    } else if (preset === "Square") {
       setPdfWidth(150);
       setPdfHeight(150);
-    } else if (preset === 'Custom') {
+    } else if (preset === "Custom") {
       // User will manually input values, keep current or reset to defaults
       setPdfWidth(210); // Default to A4 if custom is selected
       setPdfHeight(297);
@@ -168,9 +196,9 @@ const QrTable = () => {
     setPdfOrientation(newOrientation);
     // Swap width and height if changing orientation from portrait to landscape or vice-versa
     // Only swap if the current dimensions don't already match the new orientation's aspect
-    if (newOrientation === 'landscape' && pdfWidth > pdfHeight) {
+    if (newOrientation === "landscape" && pdfWidth > pdfHeight) {
       // If already landscape proportions, don't swap
-    } else if (newOrientation === 'portrait' && pdfHeight > pdfWidth) {
+    } else if (newOrientation === "portrait" && pdfHeight > pdfWidth) {
       // If already portrait proportions, don't swap
     } else {
       // Otherwise, swap
@@ -179,9 +207,13 @@ const QrTable = () => {
     }
   };
 
-
   if (loading) return <BurgerSpinner />;
-  if (error) return <Alert variant="danger" className="qr-table-alert">{error}</Alert>;
+  if (error)
+    return (
+      <Alert variant="danger" className="qr-table-alert">
+        {error}
+      </Alert>
+    );
 
   return (
     <>
@@ -205,7 +237,9 @@ const QrTable = () => {
                     <Card className="qr-table-item-card h-100 mt-2">
                       <Card.Body className="d-flex flex-column align-items-center justify-content-center">
                         <FaQrcode className="qr-icon" />
-                        <Card.Title className="table-number-title">Table {table.table_number}</Card.Title>
+                        <Card.Title className="table-number-title">
+                          Table {table.table_number}
+                        </Card.Title>
                         <Card.Text className="qr-prefix-text">
                           Prefix: <strong>{table.qr_prefix}</strong>
                         </Card.Text>
@@ -217,13 +251,17 @@ const QrTable = () => {
                               level="L"
                             />
                           ) : (
-                            <div className="text-muted text-center">No QR Prefix</div>
+                            <div className="text-muted text-center">
+                              No QR Prefix
+                            </div>
                           )}
                         </div>
                         <Button
                           variant="primary"
                           className="view-qr-btn w-100"
-                          onClick={() => handleViewQr(table.qr_prefix, table.table_number)}
+                          onClick={() =>
+                            handleViewQr(table.qr_prefix, table.table_number)
+                          }
                           disabled={!table.qr_prefix}
                         >
                           <FaEye className="me-2" /> View QR
@@ -234,7 +272,10 @@ const QrTable = () => {
                 ))
               ) : (
                 <Col xs={12}>
-                  <Alert variant="info" className="text-center mt-4 qr-table-alert">
+                  <Alert
+                    variant="info"
+                    className="text-center mt-4 qr-table-alert"
+                  >
                     No tables found.
                   </Alert>
                 </Col>
@@ -253,17 +294,22 @@ const QrTable = () => {
         className="qr-code-modal"
       >
         <Modal.Header closeButton className="qr-modal-header">
-          <Modal.Title className="qr-modal-title">QR Code for Table {selectedTableNumber}</Modal.Title>
+          <Modal.Title className="qr-modal-title">
+            QR Code for Table {selectedTableNumber}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body className="qr-modal-body text-center">
           {selectedQrValue ? (
-            <div className="qr-code-large-display" ref={qrCodeRef}> {/* Attach ref here */}
-              <QRCode
-                value={selectedQrValue}
-                size={256}
-                level="H"
-              />
-              <p className="qr-value-text mt-3">Scan this QR code to access the menu for Table {selectedTableNumber}.</p>
+            <div className="qr-code-large-display" ref={qrCodeRef}>
+              {" "}
+              {/* Attach ref here */}
+              <QRCode value={selectedQrValue} size={256} level="H" />
+              <p className="qr-value-text mt-3">{homeData.qr_text_1 || ""}</p>
+              <p className="qr-value-text mt-3">{homeData.qr_text_2 || ""}</p>
+              <p className="qr-value-text mt-3">
+                Scan this QR code to access the menu for Table{" "}
+                {selectedTableNumber}.
+              </p>
               <p className="qr-value-url">URL: {selectedQrValue}</p>
             </div>
           ) : (
@@ -277,12 +323,17 @@ const QrTable = () => {
               <Form.Label>Preset Size:</Form.Label>
               <Form.Select
                 value={
-                  (pdfWidth === 210 && pdfHeight === 297) ? 'A4' :
-                  (pdfWidth === 297 && pdfHeight === 210) ? 'A4' : // Also check landscape A4
-                  (pdfWidth === 148 && pdfHeight === 210) ? 'A5' :
-                  (pdfWidth === 210 && pdfHeight === 148) ? 'A5' : // Also check landscape A5
-                  (pdfWidth === 150 && pdfHeight === 150) ? 'Square' :
-                  'Custom'
+                  pdfWidth === 210 && pdfHeight === 297
+                    ? "A4"
+                    : pdfWidth === 297 && pdfHeight === 210
+                    ? "A4" // Also check landscape A4
+                    : pdfWidth === 148 && pdfHeight === 210
+                    ? "A5"
+                    : pdfWidth === 210 && pdfHeight === 148
+                    ? "A5" // Also check landscape A5
+                    : pdfWidth === 150 && pdfHeight === 150
+                    ? "Square"
+                    : "Custom"
                 }
                 onChange={handleDimensionPresetChange}
               >
@@ -303,7 +354,11 @@ const QrTable = () => {
                     onChange={(e) => {
                       setPdfWidth(Number(e.target.value));
                       // If custom, unset preset selection
-                      if (e.target.value !== '210' && e.target.value !== '148' && e.target.value !== '150') {
+                      if (
+                        e.target.value !== "210" &&
+                        e.target.value !== "148" &&
+                        e.target.value !== "150"
+                      ) {
                         // This logic is handled by the value prop of Form.Select
                       }
                     }}
@@ -311,12 +366,19 @@ const QrTable = () => {
                     max="500"
                     // Disable if current dimensions match a preset and preset is selected
                     disabled={
-                      (['A4', 'A5', 'Square'].includes(
-                        (pdfWidth === 210 && pdfHeight === 297) || (pdfWidth === 297 && pdfHeight === 210) ? 'A4' :
-                        (pdfWidth === 148 && pdfHeight === 210) || (pdfWidth === 210 && pdfHeight === 148) ? 'A5' :
-                        (pdfWidth === 150 && pdfHeight === 150) ? 'Square' :
-                        'Custom'
-                      )) && (pdfWidth !== 0 && pdfHeight !== 0) // Ensure not disabled if values are 0
+                      ["A4", "A5", "Square"].includes(
+                        (pdfWidth === 210 && pdfHeight === 297) ||
+                          (pdfWidth === 297 && pdfHeight === 210)
+                          ? "A4"
+                          : (pdfWidth === 148 && pdfHeight === 210) ||
+                            (pdfWidth === 210 && pdfHeight === 148)
+                          ? "A5"
+                          : pdfWidth === 150 && pdfHeight === 150
+                          ? "Square"
+                          : "Custom"
+                      ) &&
+                      pdfWidth !== 0 &&
+                      pdfHeight !== 0 // Ensure not disabled if values are 0
                     }
                   />
                 </Form.Group>
@@ -330,7 +392,11 @@ const QrTable = () => {
                     onChange={(e) => {
                       setPdfHeight(Number(e.target.value));
                       // If custom, unset preset selection
-                      if (e.target.value !== '297' && e.target.value !== '210' && e.target.value !== '150') {
+                      if (
+                        e.target.value !== "297" &&
+                        e.target.value !== "210" &&
+                        e.target.value !== "150"
+                      ) {
                         // This logic is handled by the value prop of Form.Select
                       }
                     }}
@@ -338,12 +404,19 @@ const QrTable = () => {
                     max="500"
                     // Disable if current dimensions match a preset and preset is selected
                     disabled={
-                      (['A4', 'A5', 'Square'].includes(
-                        (pdfWidth === 210 && pdfHeight === 297) || (pdfWidth === 297 && pdfHeight === 210) ? 'A4' :
-                        (pdfWidth === 148 && pdfHeight === 210) || (pdfWidth === 210 && pdfHeight === 148) ? 'A5' :
-                        (pdfWidth === 150 && pdfHeight === 150) ? 'Square' :
-                        'Custom'
-                      )) && (pdfWidth !== 0 && pdfHeight !== 0) // Ensure not disabled if values are 0
+                      ["A4", "A5", "Square"].includes(
+                        (pdfWidth === 210 && pdfHeight === 297) ||
+                          (pdfWidth === 297 && pdfHeight === 210)
+                          ? "A4"
+                          : (pdfWidth === 148 && pdfHeight === 210) ||
+                            (pdfWidth === 210 && pdfHeight === 148)
+                          ? "A5"
+                          : pdfWidth === 150 && pdfHeight === 150
+                          ? "Square"
+                          : "Custom"
+                      ) &&
+                      pdfWidth !== 0 &&
+                      pdfHeight !== 0 // Ensure not disabled if values are 0
                     }
                   />
                 </Form.Group>
@@ -352,7 +425,10 @@ const QrTable = () => {
 
             <Form.Group className="mb-3 text-start">
               <Form.Label>Orientation:</Form.Label>
-              <Form.Select value={pdfOrientation} onChange={handleOrientationChange}>
+              <Form.Select
+                value={pdfOrientation}
+                onChange={handleOrientationChange}
+              >
                 <option value="portrait">Portrait</option>
                 <option value="landscape">Landscape</option>
               </Form.Select>
@@ -368,7 +444,11 @@ const QrTable = () => {
           </div>
         </Modal.Body>
         <Modal.Footer className="qr-modal-footer">
-          <Button variant="secondary" onClick={() => setShowModal(false)} className="qr-modal-close-btn">
+          <Button
+            variant="secondary"
+            onClick={() => setShowModal(false)}
+            className="qr-modal-close-btn"
+          >
             Close
           </Button>
         </Modal.Footer>
