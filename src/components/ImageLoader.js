@@ -23,7 +23,7 @@ const ImageLoader = ({ imageId, altText, style }) => {
   }, [imageId]);
 
   if (error) return <div>{error}</div>;
-  if (!imageUrl) return <div>Loading...</div>;
+  if (!imageUrl) return <div></div>;
 
   return <img src={imageUrl} alt={altText} style={style} />;
 };
