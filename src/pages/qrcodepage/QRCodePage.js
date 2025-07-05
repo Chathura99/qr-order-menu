@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import {
   Card,
@@ -9,14 +9,14 @@ import {
   ListGroup,
   Button,
   Form,
-  Badge, // Import Badge for better label styling
+  Badge,
 } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import BurgerSpinner from "../../components/BurgerSpinner";
 import ImageLoader from "../../components/ImageLoader";
 import { apiRequest } from "../../hooks/apiRequest";
-import logoBg from "../../images/logo.png"; // Assuming this is your logo image
+import logoBg from "../../images/logo.png";
 
 import {
   MENU_CATEGORY_ENDPOINT,
@@ -24,8 +24,7 @@ import {
   ORDER_ENDPOINT,
   SETTINGS_ENDPOINT,
 } from "../../api/endpoints";
-import "./QRCodePage.css"; // Import your CSS file
-import { tab } from "@material-tailwind/react";
+import "./QRCodePage.css";
 
 const QRCodePage = () => {
   const { qr_prefix } = useParams();
@@ -36,8 +35,12 @@ const QRCodePage = () => {
   const [cart, setCart] = useState([]);
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
-
   const [homeData, setHomeData] = useState(null);
+  const [showGoToCart, setShowGoToCart] = useState(true);
+
+  // Scroll targets
+  const menuRef = useRef(null);
+  const cartRef = useRef(null);
 
   useEffect(() => {
     const fetchTable = async () => {
@@ -57,19 +60,17 @@ const QRCodePage = () => {
       }
     };
 
-    // Fetch general home page data
     const fetchHomePageData = async () => {
       try {
         const response = await apiRequest(`${SETTINGS_ENDPOINT}`);
         if (response.data) {
-          setHomeData(response.data); // Assuming it returns an array, take the first item
+          setHomeData(response.data);
         } else {
           toast.info("No home page general data found.");
         }
       } catch (error) {
         console.error("Failed to fetch home page general data:", error);
         toast.error("Failed to load home page general content.");
-      } finally {
       }
     };
 
@@ -79,18 +80,15 @@ const QRCodePage = () => {
 
   useEffect(() => {
     if (!tableData) return;
-    console.log(tableData);
     const fetchMenu = async () => {
       try {
         const catRes = await apiRequest(
           `${MENU_CATEGORY_ENDPOINT}?filter[menu_items][menu_items_id][branches][branches_id][id][_eq]=${tableData.branch.id}&fields=*,menu_items.*,menu_items.menu_items_id.*,menu_items.menu_items_id.labels.labels_id.*,menu_items.menu_items_id.branches.branches_id.id&limit=-1`
         );
-        // setCategories(catRes.data);
-        const branchId = tableData.branch.id;
 
+        const branchId = tableData.branch.id;
         const filteredCategories = catRes.data
           .map((category) => {
-            // Filter menu items within each category by branch ID
             const filteredMenuItems = category.menu_items.filter((menuItem) => {
               const branches = menuItem.menu_items_id.branches || [];
               return branches.some(
@@ -98,7 +96,6 @@ const QRCodePage = () => {
               );
             });
 
-            // Only include categories that have matching menu items
             if (filteredMenuItems.length > 0) {
               return {
                 ...category,
@@ -108,13 +105,10 @@ const QRCodePage = () => {
 
             return null;
           })
-          .filter(Boolean); // Remove null values
+          .filter(Boolean);
 
-        // Set filtered data
         setCategories(filteredCategories);
-
         if (catRes.data.length > 0) {
-          // Set initial selected tab to the first category name, or an empty string if no categories
           setSelectedTab(catRes.data[0]?.name || "");
         }
       } catch {
@@ -124,9 +118,18 @@ const QRCodePage = () => {
     fetchMenu();
   }, [tableData]);
 
-  // Handle adding item to cart
+  // Scroll listener to toggle button label
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowGoToCart(window.scrollY < 300);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const handleAddToCart = (item) => {
-    const exists = cart.find((c) => c.id === item.id); // Check if item already exists
+    const exists = cart.find((c) => c.id === item.id);
     if (exists) {
       setCart(
         cart.map((c) => (c.id === item.id ? { ...c, qty: c.qty + 1 } : c))
@@ -137,7 +140,6 @@ const QRCodePage = () => {
     toast.success(`${item.name} added to cart`);
   };
 
-  // Handle removing item from cart
   const handleRemoveFromCart = (itemId) => {
     setCart(cart.filter((item) => item.id !== itemId));
     toast.info("Item removed from cart.");
@@ -148,11 +150,6 @@ const QRCodePage = () => {
       toast.error("Select at least one item.");
       return;
     }
-
-    // if (mobile.trim().length < 10 || !/^\d+$/.test(mobile.trim())) {
-    //   toast.error("Please enter a valid mobile number (at least 10 digits).");
-    //   return;
-    // }
 
     try {
       const orderPayload = {
@@ -181,6 +178,7 @@ const QRCodePage = () => {
   return (
     <div className="container-fluid p-0">
       <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
+
       {tableData && (
         <>
           <div className="header-section">
@@ -195,11 +193,9 @@ const QRCodePage = () => {
               <Button
                 variant="outline-light"
                 className="header-top-btn"
-                onClick={
-                  () =>
-                    (window.location.href =
-                      homeData.google_map_link || "https://maps.google.com")
-                  // window.open(homeData.location || "https://maps.google.com")
+                onClick={() =>
+                  (window.location.href =
+                    homeData.google_map_link || "https://maps.google.com")
                 }
               >
                 📍 Map
@@ -207,11 +203,6 @@ const QRCodePage = () => {
             </div>
 
             <div className="header-logo">
-              {/* <img
-                src={logoBg}
-                alt="QuickDine Logo"
-                style={{ maxWidth: "100%", maxHeight: "100%" }}
-              /> */}
               {homeData?.logo && (
                 <ImageLoader
                   imageId={homeData?.logo || ""}
@@ -225,17 +216,14 @@ const QRCodePage = () => {
             <div className="header-details">
               <h4>QuickDine - {homeData.Name || ""}</h4>
               <div className="qr-menu-section">
-                {/* <p>QR Code Restaurant Menu System</p> */}
-                 <p>{homeData.location || ""}</p>
+                <p>{homeData.location || ""}</p>
               </div>
             </div>
           </div>
 
           <div className="container mt-4 main-content-area">
             <Card className="customer-info-card mb-2">
-              {/* Removed p-4 mb-4 shadow-sm from here as defined in CSS */}
               <div className="card-header-styled">
-                {/* New div for header styling */}
                 <h4 className="card-title-styled">
                   Welcome to{" "}
                   <span className="highlight-text">
@@ -250,12 +238,9 @@ const QRCodePage = () => {
               {homeData?.customer_details && (
                 <Card.Body className="card-body-styled">
                   <Form className="customer-info-form">
-                    {/* Added a class for form styling */}
                     <Row className="form-row-custom">
-                      {/* Added a class for row spacing */}
                       <Col md={6}>
                         <Form.Group className="mb-2">
-                          {/* Increased bottom margin for more space */}
                           <Form.Label className="form-label-styled">
                             Your Name (Not Mandatory)
                           </Form.Label>
@@ -269,18 +254,15 @@ const QRCodePage = () => {
                       </Col>
                       <Col md={6}>
                         <Form.Group className="mb-4">
-                          {" "}
-                          {/* Increased bottom margin */}
                           <Form.Label className="form-label-styled">
                             Mobile Number (Not Mandatory)
-                          </Form.Label>{" "}
-                          {/* Styled label */}
+                          </Form.Label>
                           <Form.Control
                             value={mobile}
                             onChange={(e) => setMobile(e.target.value)}
                             placeholder="e.g., +94771234567"
                             className="form-control-custom"
-                            type="tel" // Use type tel for mobile numbers
+                            type="tel"
                           />
                         </Form.Group>
                       </Col>
@@ -290,10 +272,13 @@ const QRCodePage = () => {
               )}
             </Card>
 
+            {/* Scroll Target for Menu */}
+            <div ref={menuRef}></div>
+
             <Tabs
               activeKey={selectedTab}
               onSelect={(k) => setSelectedTab(k)}
-              className="mb-3 custom-tabs-container" // Add custom class for styling
+              className="mb-3 custom-tabs-container"
             >
               {categories.map((cat) => (
                 <Tab eventKey={cat.name} title={cat.name} key={cat.id}>
@@ -306,14 +291,13 @@ const QRCodePage = () => {
                           <Card className="h-100 menu-item-card">
                             <Card.Body>
                               <Card.Title>{item.name}</Card.Title>
-                              {/* Labels */}
                               {item.labels?.length > 0 && (
                                 <div className="mb-2 item-labels-container">
                                   {item.labels.map((labelWrapper, idx) => (
                                     <Badge
                                       key={idx}
-                                      bg="warning" // Using Bootstrap badge background
-                                      className="item-label-badge" // Custom class for styling
+                                      bg="warning"
+                                      className="item-label-badge"
                                     >
                                       {labelWrapper.labels_id?.icon && (
                                         <ImageLoader
@@ -331,22 +315,17 @@ const QRCodePage = () => {
                                   ))}
                                 </div>
                               )}
-                              {/* Image */}
                               <ImageLoader
                                 altText={item.name}
                                 imageId={item.image}
                                 className="card-img-top"
                               />
-                              {/* Description */}
                               <p className="item-description">
-                                {item.description ||
-                                  "No description available."}
+                                {item.description || "No description available."}
                               </p>
-                              {/* Price */}
                               <p className="item-price">
                                 {`Rs. ${item.price}` || "Free"}
                               </p>
-                              {/* Add to Cart */}
                               <Button
                                 variant="primary"
                                 onClick={() => handleAddToCart(item)}
@@ -363,7 +342,9 @@ const QRCodePage = () => {
               ))}
             </Tabs>
 
-            {/* Cart Section */}
+            {/* Scroll Target for Cart */}
+            <div ref={cartRef}></div>
+
             <Card className="p-3 mt-4 shadow-sm cart-card">
               <h5>🛒 Your Cart</h5>
               {cart.length === 0 ? (
@@ -374,7 +355,7 @@ const QRCodePage = () => {
                 <ListGroup variant="flush">
                   {cart.map((item) => (
                     <ListGroup.Item
-                      key={item.id} // Use item.id as key for unique identification
+                      key={item.id}
                       className="d-flex justify-content-between align-items-center cart-item"
                     >
                       <div>
@@ -404,6 +385,19 @@ const QRCodePage = () => {
               </div>
             </Card>
           </div>
+
+          {/* Floating Scroll Button */}
+          <Button
+            variant="dark"
+            className="floating-toggle-btn"
+            onClick={() =>
+              showGoToCart
+                ? cartRef.current?.scrollIntoView({ behavior: "smooth" })
+                : menuRef.current?.scrollIntoView({ behavior: "smooth" })
+            }
+          >
+            {showGoToCart ? "⬇️ Go to Cart" : "⬆️ Menu"}
+          </Button>
         </>
       )}
     </div>
