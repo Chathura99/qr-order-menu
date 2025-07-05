@@ -30,7 +30,7 @@ services:
       MARKETPLACE_TRUST: ${MARKETPLACE_TRUST}
       EXTENSIONS_AUTO_RELOAD: ${EXTENSIONS_AUTO_RELOAD}
       CORS_ENABLED: true
-      CORS_ORIGIN: http://localhost:3000
+      CORS_ORIGIN: http://localhost:3000,http://192.168.1.100:3000 # Adjusted CORS origin for Directus
     depends_on: # Added dependency on database
       - database
 
