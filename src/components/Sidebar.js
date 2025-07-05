@@ -31,15 +31,18 @@ import {
 import { useTranslation } from "react-i18next";
 
 // --- Styled Components ---
+const MAIN_COLOR = "var(--main-color)";
+
 const SidebarContainer = styled(Nav)`
   height: 100vh;
   width: ${(props) =>
-    props.$isCollapsed ? "80px" : "300px"}; /* Dynamic width */
+    props.$isCollapsed ? "80px" : "300px"};
   background: linear-gradient(
     to bottom,
-    #014F42,
-    #014F42
-  ); /* Orange gradient */
+    ${MAIN_COLOR},
+    ${MAIN_COLOR}
+  );
+  /* Orange gradient */
   border-right: 1px solid rgba(255, 255, 255, 0.2);
   position: fixed;
   top: 0;
@@ -187,7 +190,7 @@ const LanguageSwitcher = styled(Dropdown)`
       color: white;
     }
     &.active {
-      background-color: #014F42; /* Darker orange active */
+      background-color: ${MAIN_COLOR};
       color: white;
     }
   }

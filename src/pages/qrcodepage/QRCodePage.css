@@ -20,7 +20,7 @@ body {
 
 /* Header Section */
 .header-section {
-  background: linear-gradient(to right, #014F42, #014F42); /* A more defined orange gradient */
+  background: linear-gradient(to right, var(--main-color), var(--main-color)); /* Use variable */
   color: #fff; /* White text for better contrast on the dark header */
   padding: 30px 20px 30px 120px; /* Increased padding for a more substantial header */
   display: flex;
@@ -143,7 +143,7 @@ body {
 }
 
 .form-control-custom:focus {
-  border-color: #014F42;
+  border-color: var(--main-color);
   box-shadow: 0 0 0 0.25rem rgba(255, 140, 0, 0.3); /* Softer glow */
   outline: none;
 }
@@ -191,7 +191,7 @@ body {
 }
 
 .custom-tabs-container .nav-link.active {
-  background: linear-gradient(to right, #014F42, #014F42); /* Orange to yellow gradient for active tab */
+  background: linear-gradient(to right, var(--main-color), var(--main-color));
   color: #fff !important; /* White text for active tab */
   box-shadow: 0 5px 15px rgba(97, 97, 97, 0.3); /* Stronger, softer shadow for active tab */
   transform: translateY(-3px); /* More pronounced lift for active tab */
@@ -262,7 +262,7 @@ body {
 .menu-item-card .item-price {
   font-size: 1.6em; /* Larger price */
   font-weight: 800; /* Extra bold price */
-  color: #014F42;
+  color: var(--main-color);
   margin-top: auto;
   text-align: right;
   padding-top: 20px; /* More space above price */
@@ -270,8 +270,8 @@ body {
 }
 
 .menu-item-card .add-to-cart-btn {
-  background-color: #014F42;
-  border-color: #014F42;
+  background-color: var(--main-color);
+  border-color: var(--main-color);
   width: 100%;
   margin-top: 25px; /* More space above button */
   font-weight: 700;
@@ -283,8 +283,8 @@ body {
 }
 
 .menu-item-card .add-to-cart-btn:hover {
-  background-color: #014F42;
-  border-color: #014F42;
+  background-color: var(--main-color);
+  border-color: var(--main-color);
   transform: translateY(-3px); /* More pronounced lift on hover */
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }

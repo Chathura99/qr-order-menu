@@ -18,6 +18,8 @@ import ImageLoader from "../../components/ImageLoader";
 
 // --- Styled Components ---
 
+const MAIN_COLOR = "var(--main-color)";
+
 // Page Wrapper: Full viewport height, centered content, clean background
 const PageWrapper = styled.div`
   min-height: 100vh;
@@ -58,7 +60,7 @@ const FormLogo = styled.img`
 
 // Title: Styling for the main login title
 const Title = styled.h2`
-  color: #014f42; /* Consistent orange color */
+  color: ${MAIN_COLOR}; /* Consistent orange color */
   font-family: "Montserrat", sans-serif; /* Bolder font for titles */
   font-weight: 800; /* Extra bold */
   margin-bottom: 2.5rem; /* More space below title */
@@ -74,7 +76,7 @@ const Title = styled.h2`
 
 // Submit Button: Primary button styling
 const SubmitButton = styled(Button)`
-  background: linear-gradient(to right, #014f42, #014f42); /* Orange gradient */
+  background: linear-gradient(to right, ${MAIN_COLOR}, ${MAIN_COLOR}); /* Orange gradient */
   border: none;
   font-weight: 700; /* Bolder font */
   padding: 14px 0; /* More padding */
@@ -128,7 +130,7 @@ const Footer = styled.footer`
 const IconWrapper = styled(InputGroup.Text)`
   background-color: #f8f9fa; /* Slightly off-white background for icon */
   border-right: 0;
-  color: #014f42; /* Orange icon color */
+  color: ${MAIN_COLOR}; /* Orange icon color */
   font-size: 1.2rem; /* Slightly larger icon */
   border-radius: 10px 0 0 10px; /* Match input border-radius */
   border: 1px solid #ced4da; /* Match input border */
@@ -210,9 +212,9 @@ const Login = () => {
       <Card>
         {/* <FormLogo src={logoIcon} alt="QuickDine - QR - Order Menu Logo" /> New Logo component */}
         <Title>QuickDine</Title>
-        {homeData.logo && (
+        {homeData?.logo && (
           <ImageLoader
-            imageId={homeData.logo}
+            imageId={homeData.logo || ""}
             altText="Company Logo"
             className="company-logo mb-4"
             style={{ maxWidth: "100px", maxHeight: "100px" }}
