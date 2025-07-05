@@ -247,45 +247,47 @@ const QRCodePage = () => {
                   </span>
                 </h4>
               </div>
-              <Card.Body className="card-body-styled">
-                <Form className="customer-info-form">
-                  {/* Added a class for form styling */}
-                  <Row className="form-row-custom">
-                    {/* Added a class for row spacing */}
-                    <Col md={6}>
-                      <Form.Group className="mb-2">
-                        {/* Increased bottom margin for more space */}
-                        <Form.Label className="form-label-styled">
-                          Your Name (Not Mandatory)
-                        </Form.Label>
-                        <Form.Control
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          placeholder="e.g., John Doe"
-                          className="form-control-custom"
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col md={6}>
-                      <Form.Group className="mb-4">
-                        {" "}
-                        {/* Increased bottom margin */}
-                        <Form.Label className="form-label-styled">
-                          Mobile Number (Not Mandatory)
-                        </Form.Label>{" "}
-                        {/* Styled label */}
-                        <Form.Control
-                          value={mobile}
-                          onChange={(e) => setMobile(e.target.value)}
-                          placeholder="e.g., +94771234567"
-                          className="form-control-custom"
-                          type="tel" // Use type tel for mobile numbers
-                        />
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                </Form>
-              </Card.Body>
+              {homeData?.customer_details && (
+                <Card.Body className="card-body-styled">
+                  <Form className="customer-info-form">
+                    {/* Added a class for form styling */}
+                    <Row className="form-row-custom">
+                      {/* Added a class for row spacing */}
+                      <Col md={6}>
+                        <Form.Group className="mb-2">
+                          {/* Increased bottom margin for more space */}
+                          <Form.Label className="form-label-styled">
+                            Your Name (Not Mandatory)
+                          </Form.Label>
+                          <Form.Control
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="e.g., John Doe"
+                            className="form-control-custom"
+                          />
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group className="mb-4">
+                          {" "}
+                          {/* Increased bottom margin */}
+                          <Form.Label className="form-label-styled">
+                            Mobile Number (Not Mandatory)
+                          </Form.Label>{" "}
+                          {/* Styled label */}
+                          <Form.Control
+                            value={mobile}
+                            onChange={(e) => setMobile(e.target.value)}
+                            placeholder="e.g., +94771234567"
+                            className="form-control-custom"
+                            type="tel" // Use type tel for mobile numbers
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                  </Form>
+                </Card.Body>
+              )}
             </Card>
 
             <Tabs
