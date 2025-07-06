@@ -385,7 +385,7 @@ const QRCodePage = () => {
                             ) : (
                               <div
                                 // className="mb-1"
-                                style={{ height: "0.8em" }}
+                                style={{ height: "1em" }}
                               ></div>
                             )}
 
@@ -417,7 +417,7 @@ const QRCodePage = () => {
                                 className="img-fluid rounded mb-2"
                                 style={{
                                   width: "100%",
-                                  height: "120px",
+                                  height: "112px",
                                   objectFit: "cover",
                                 }}
                               />
