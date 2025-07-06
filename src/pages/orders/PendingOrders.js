@@ -51,22 +51,22 @@ const PendingOrders = () => {
     fetchUserProfile();
   }, []);
 
-  // Fetch student reviews
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const response = await apiRequest(
+        `${ORDER_ENDPOINT}?filter[_and][0][_and][0][table][branch][_eq]=${branchId}&filter[_and][1][status][_eq]=pending&fields=*,table.*,table.branch.*,Menu_Items.*,Menu_Items.menu_items_id.name,Menu_Items.menu_items_id.price&limit=-1`
+      );
+      setorderList(response.data);
+      setLoading(false);
+    } catch (error) {
+      toast.error("Failed to load student review data.");
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchStudentOrders = async () => {
-      setLoading(true);
-      try {
-        const response = await apiRequest(
-          `${ORDER_ENDPOINT}?filter[_and][0][_and][0][table][branch][_eq]=${branchId}&filter[_and][1][status][_eq]=pending&fields=*,table.*,table.branch.*,Menu_Items.*,Menu_Items.menu_items_id.name,Menu_Items.menu_items_id.price&limit=-1`
-        );
-        setorderList(response.data);
-        setLoading(false);
-      } catch (error) {
-        toast.error("Failed to load student review data.");
-        setLoading(false);
-      }
-    };
-    fetchStudentOrders();
+    fetchOrders();
   }, []);
 
   const handleEdit = (data) => {
@@ -159,6 +159,13 @@ const PendingOrders = () => {
 
             <Card className="mt-3 p-3 w-100" style={{ overflowX: "auto" }}>
               <h2 className="text-center mb-4">Order List</h2>
+              <Button
+                variant="outline"
+                onClick={fetchOrders}
+                className="mt-2 mb-4"
+              >
+                🔄 Refresh
+              </Button>
               <div style={{ width: "100%" }}>
                 <DataTable columns={columns} data={orderList} />
               </div>
