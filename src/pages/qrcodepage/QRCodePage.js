@@ -177,7 +177,7 @@ const QRCodePage = () => {
 
   return (
     <div className="container-fluid p-0">
-      <ToastContainer position="top-center" autoClose={3000} hideProgressBar />
+      <ToastContainer position="top-center" autoClose={3000} hideProgressBar style={{fontSize : "0.8rem", padding : "3px"}} />
 
       {tableData && (
         <>
