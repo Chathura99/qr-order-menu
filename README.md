@@ -44,3 +44,5 @@ Automatically generates QR codes for tables.
 
 Offers print-ready QR codes for physical use.
 
+
+
