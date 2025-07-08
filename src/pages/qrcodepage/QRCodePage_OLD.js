@@ -83,7 +83,7 @@ const QRCodePage = () => {
     const fetchMenu = async () => {
       try {
         const catRes = await apiRequest(
-          `${MENU_CATEGORY_ENDPOINT}?filter[menu_items][menu_items_id][branches][branches_id][id][_eq]=${tableData.branch.id}&fields=*,menu_items.*,menu_items.menu_items_id.*,menu_items.menu_items_id.labels.labels_id.*,menu_items.menu_items_id.branches.branches_id.id&limit=-1&sort=menu_items.menu_items_id.name`
+          `${MENU_CATEGORY_ENDPOINT}?filter[menu_items][menu_items_id][branches][branches_id][id][_eq]=${tableData.branch.id}&fields=*,menu_items.*,menu_items.menu_items_id.*,menu_items.menu_items_id.labels.labels_id.*,menu_items.menu_items_id.branches.branches_id.id&limit=-1`
         );
 
         const branchId = tableData.branch.id;
@@ -182,6 +182,26 @@ const QRCodePage = () => {
       {tableData && (
         <>
           <div className="header-section">
+            <div className="header-top-buttons">
+              <Button
+                variant="outline-light"
+                className="me-2 header-top-btn m-2"
+                onClick={() => (window.location.href = "/")}
+              >
+                Login
+              </Button>
+              <Button
+                variant="outline-light"
+                className="header-top-btn"
+                onClick={() =>
+                  (window.location.href =
+                    homeData.google_map_link || "https://maps.google.com")
+                }
+              >
+                📍 Map
+              </Button>
+            </div>
+
             <div className="header-logo">
               {homeData?.logo && (
                 <ImageLoader
@@ -195,6 +215,9 @@ const QRCodePage = () => {
 
             <div className="header-details">
               <h4>QuickDine - {homeData?.Name || ""}</h4>
+              <div className="qr-menu-section">
+                <p>{homeData?.location || ""}</p>
+              </div>
             </div>
           </div>
 
@@ -264,76 +287,97 @@ const QRCodePage = () => {
                       ?.map((wrapper) => wrapper.menu_items_id)
                       ?.filter(Boolean)
                       .map((item) => (
-                        <Col xs={12} md={4} key={item.id}>
-                          <Col xs={12} key={item.id}>
-                            <Card className="p-1 d-flex flex-row align-items-center mb-0">
+                        <Col xs={6} md={4} key={item.id}>
+                          <Card.Body className="p-2 d-flex flex-column justify-content-between">
+                            <Card.Title className="fs-6 mb-1 ">
+                              {item.name}
+                            </Card.Title>
+
+                            {item.labels?.length > 0 ? (
+                              <div className="mb-1 d-flex flex-wrap gap-1">
+                                {item.labels.map((labelWrapper, idx) => (
+                                  <Badge
+                                    key={idx}
+                                    bg="warning"
+                                    className="d-flex align-items-center gap-1 px-1 py-0"
+                                    style={{ fontSize: "0.65em" }}
+                                  >
+                                    {labelWrapper.labels_id?.icon && (
+                                      <ImageLoader
+                                        altText=""
+                                        imageId={labelWrapper.labels_id.icon}
+                                        style={{
+                                          width: "0.9em",
+                                          height: "0.9em",
+                                        }}
+                                      />
+                                    )}
+                                    {labelWrapper.labels_id?.label_name}
+                                  </Badge>
+                                ))}
+                              </div>
+                            ) : (
                               <div
+                                // className="mb-1"
+                                style={{ height: "1em" }}
+                              ></div>
+                            )}
+
+                            {item.image ? (
+                              <ImageLoader
+                                altText={item.name}
+                                imageId={item.image}
+                                className="img-fluid rounded mb-2"
                                 style={{
-                                  width: "90px",
-                                  height: "90px",
-                                  flexShrink: 0,
+                                  width: "100%",
+                                  height: "120px",
+                                  objectFit: "cover",
                                 }}
+                              />
+                            ) : (
+                              <img
+                                src={demoFood}
+                                alt={item.name}
+                                className="img-fluid rounded mb-2"
+                                style={{
+                                  width: "100%",
+                                  height: "112px",
+                                  objectFit: "cover",
+                                }}
+                              />
+                            )}
+
+                            <p
+                              className="item-description text-muted mb-2"
+                              style={{ fontSize: "0.75em" }}
+                            >
+                              {item.description || "No description available."}
+                            </p>
+
+                            <div className="d-flex justify-content-between align-items-center mt-auto">
+                              <Button
+                                variant="primary"
+                                onClick={() => handleAddToCart(item)}
+                                className="add-to-cart-btn px-2 py-1"
+                                style={{ fontSize: "0.75em" }}
                               >
-                                {item.image ? (
-                                  <ImageLoader
-                                    altText={item.name}
-                                    imageId={item.image}
-                                    className="img-fluid rounded"
-                                    style={{
-                                      width: "100%",
-                                      height: "100%",
-                                      objectFit: "cover",
-                                    }}
-                                  />
-                                ) : (
-                                  <img
-                                    src={demoFood}
-                                    alt={item.name}
-                                    className="img-fluid rounded"
-                                    style={{
-                                      width: "100%",
-                                      height: "100%",
-                                      objectFit: "cover",
-                                    }}
-                                  />
-                                )}
-                              </div>
-
-                              <div className="px-3 flex-grow-1">
-                                <h6 className="mb-1 fw-bold"    style={{ fontSize: "0.8em" }}>{item.name}</h6>
-                                <p
-                                  className="text-muted mb-0"
-                                  style={{ fontSize: "0.7em" }}
-                                >
-                                  {item.description ||
-                                    "No description available."}
-                                </p>
-                              </div>
-
-                              <div className="text-end">
-                                <div
-                                  className="fw-bold mb-1"
-                                  style={{ fontSize: "0.7em", marginRight: "10px" }}
-                                >
-                                  {item.price ? `Rs ${item.price}` : "Free"}
-                                </div>
-                                <Button
-                                  variant="outline-warning"
-                                  size="sm"
-                                  onClick={() => handleAddToCart(item)}
-                                  style={{ fontWeight: "bold", marginRight: "10px"}}
-                                >
-                                  ADD
-                                </Button>
-                              </div>
-                            </Card>
-                          </Col>
+                                Add to Cart
+                              </Button>
+                              <span
+                                className="fw-bold text-success item-price"
+                                style={{ fontSize: "0.8em" }}
+                              >
+                                {item.price ? `Rs. ${item.price}` : "Free"}
+                              </span>
+                            </div>
+                          </Card.Body>
                         </Col>
                       ))}
                   </Row>
                 </Tab>
               ))}
             </Tabs>
+      
 
             {/* Scroll Target for Cart */}
             <div ref={cartRef}></div>

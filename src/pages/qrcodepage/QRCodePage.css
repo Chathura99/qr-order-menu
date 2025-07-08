@@ -114,13 +114,13 @@ body {
   margin-top: -40px; /* Pull it further over the header curve */
   position: relative;
   z-index: 10;
-  padding: 30px; /* More internal padding */
+  padding: 10px; /* More internal padding */
 }
 
 .customer-info-card h4 {
   font-weight: 700;
   color: #212529;
-  margin-bottom: 20px; /* More space below title */
+  margin-bottom: 2px; /* More space below title */
   font-size: 1.7rem;
 }
 
@@ -728,4 +728,12 @@ body {
 
 .item-price {
   white-space: nowrap;
+}
+
+.card h6 {
+  font-weight: 600;
+}
+
+.card img {
+  border-radius: 0.5rem;
 }
