@@ -116,7 +116,7 @@ const QRCodePage = () => {
           }, {})
         );
 
-        console.log(filteredCategories)
+        console.log(filteredCategories);
 
         if (catRes.data.length > 0) {
           setSelectedTab(catRes.data[0]?.name || "");
