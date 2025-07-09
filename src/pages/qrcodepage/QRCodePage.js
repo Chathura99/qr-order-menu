@@ -107,7 +107,17 @@ const QRCodePage = () => {
           })
           .filter(Boolean);
 
-        setCategories(filteredCategories);
+        setCategories(
+          filteredCategories.reduce((acc, cat) => {
+            const parent = cat?.parent_category || "Others";
+            if (!acc[parent]) acc[parent] = [];
+            acc[parent].push(cat);
+            return acc;
+          }, {})
+        );
+
+        console.log(filteredCategories)
+
         if (catRes.data.length > 0) {
           setSelectedTab(catRes.data[0]?.name || "");
         }
@@ -177,7 +187,12 @@ const QRCodePage = () => {
 
   return (
     <div className="container-fluid p-0">
-      <ToastContainer position="top-center" autoClose={3000} hideProgressBar style={{fontSize : "0.8rem", padding : "3px"}} />
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar
+        style={{ fontSize: "0.8rem", padding: "3px" }}
+      />
 
       {tableData && (
         <>
@@ -187,32 +202,65 @@ const QRCodePage = () => {
                 <ImageLoader
                   imageId={homeData?.logo || ""}
                   altText="Company Logo"
-                  className="company-logo mb-4"
-                  style={{ maxWidth: "100%", maxHeight: "100%" }}
+                  className="company-logo mb-2"
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: "100%",
+                    width: "80px",
+                    height: "80px",
+                  }}
                 />
               )}
             </div>
 
             <div className="header-details">
-              <h4>QuickDine - {homeData?.Name || ""}</h4>
+              <h4
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  margin: 0,
+                  fontSize: "15px",
+                }}
+              >
+                QuickDine - {homeData?.Name || ""}
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "24px",
+                    height: "24px",
+                    backgroundColor: "white",
+                    color: "black",
+                    borderRadius: "50%",
+                    fontSize: "12px",
+                    fontWeight: "bold",
+                    marginBottom: "3px",
+                  }}
+                >
+                  {tableData.table_number}
+                </span>
+              </h4>
             </div>
           </div>
 
           <div className="container mt-4 main-content-area">
-            <Card className="customer-info-card mb-2">
-              <div className="card-header-styled">
-                <h4 className="card-title-styled">
-                  Welcome to{" "}
-                  <span className="highlight-text">
-                    {tableData.branch?.name}
-                  </span>{" "}
-                  - Table{" "}
-                  <span className="highlight-text">
-                    {tableData.table_number}
-                  </span>
-                </h4>
-              </div>
-              {homeData?.customer_details && (
+            {homeData?.customer_details && (
+              <Card className="customer-info-card mb-2">
+                <div className="card-header-styled">
+                  <h4 className="card-title-styled">
+                    Welcome to{" "}
+                    <span className="highlight-text">
+                      {tableData.branch?.name}
+                    </span>{" "}
+                    - Table{" "}
+                    <span className="highlight-text">
+                      {tableData.table_number}
+                    </span>
+                  </h4>
+                </div>
+
                 <Card.Body className="card-body-styled">
                   <Form className="customer-info-form">
                     <Row className="form-row-custom">
@@ -246,94 +294,109 @@ const QRCodePage = () => {
                     </Row>
                   </Form>
                 </Card.Body>
-              )}
-            </Card>
+              </Card>
+            )}
 
             {/* Scroll Target for Menu */}
             <div ref={menuRef}></div>
 
-            <Tabs
-              activeKey={selectedTab}
-              onSelect={(k) => setSelectedTab(k)}
-              className="mb-3 custom-tabs-container"
-            >
-              {categories.map((cat) => (
-                <Tab eventKey={cat.name} title={cat.name} key={cat.id}>
-                  <Row className="g-2">
-                    {cat.menu_items
-                      ?.map((wrapper) => wrapper.menu_items_id)
-                      ?.filter(Boolean)
-                      .map((item) => (
-                        <Col xs={12} md={4} key={item.id}>
-                          <Col xs={12} key={item.id}>
-                            <Card className="p-1 d-flex flex-row align-items-center mb-0">
-                              <div
-                                style={{
-                                  width: "90px",
-                                  height: "90px",
-                                  flexShrink: 0,
-                                }}
-                              >
-                                {item.image ? (
-                                  <ImageLoader
-                                    altText={item.name}
-                                    imageId={item.image}
-                                    className="img-fluid rounded"
-                                    style={{
-                                      width: "100%",
-                                      height: "100%",
-                                      objectFit: "cover",
-                                    }}
-                                  />
-                                ) : (
-                                  <img
-                                    src={demoFood}
-                                    alt={item.name}
-                                    className="img-fluid rounded"
-                                    style={{
-                                      width: "100%",
-                                      height: "100%",
-                                      objectFit: "cover",
-                                    }}
-                                  />
-                                )}
-                              </div>
+            {Object.entries(categories).map(([parent, catGroup]) => (
+              <div key={parent} className="mb-4">
+                <h5 className="fw-bold text-uppercase mb-3">{parent}</h5>
 
-                              <div className="px-3 flex-grow-1">
-                                <h6 className="mb-1 fw-bold"    style={{ fontSize: "0.8em" }}>{item.name}</h6>
-                                <p
-                                  className="text-muted mb-0"
-                                  style={{ fontSize: "0.7em" }}
-                                >
-                                  {item.description ||
-                                    "No description available."}
-                                </p>
-                              </div>
-
-                              <div className="text-end">
+                <Tabs
+                  activeKey={selectedTab}
+                  onSelect={(k) => setSelectedTab(k)}
+                  className="mb-3 custom-tabs-container"
+                >
+                  {catGroup.map((cat) => (
+                    <Tab eventKey={cat.name} title={cat.name} key={cat.id}>
+                      <Row className="g-2">
+                        {cat.menu_items
+                          ?.map((wrapper) => wrapper.menu_items_id)
+                          ?.filter(Boolean)
+                          .map((item) => (
+                            <Col xs={12} md={4} key={item.id}>
+                              <Card className="p-1 d-flex flex-row align-items-center mb-0">
                                 <div
-                                  className="fw-bold mb-1"
-                                  style={{ fontSize: "0.7em", marginRight: "10px" }}
+                                  style={{
+                                    width: "90px",
+                                    height: "90px",
+                                    flexShrink: 0,
+                                  }}
                                 >
-                                  {item.price ? `Rs ${item.price}` : "Free"}
+                                  {item.image ? (
+                                    <ImageLoader
+                                      altText={item.name}
+                                      imageId={item.image}
+                                      className="img-fluid rounded"
+                                      style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                      }}
+                                    />
+                                  ) : (
+                                    <img
+                                      src={demoFood}
+                                      alt={item.name}
+                                      className="img-fluid rounded"
+                                      style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
+                                      }}
+                                    />
+                                  )}
                                 </div>
-                                <Button
-                                  variant="outline-warning"
-                                  size="sm"
-                                  onClick={() => handleAddToCart(item)}
-                                  style={{ fontWeight: "bold", marginRight: "10px"}}
-                                >
-                                  ADD
-                                </Button>
-                              </div>
-                            </Card>
-                          </Col>
-                        </Col>
-                      ))}
-                  </Row>
-                </Tab>
-              ))}
-            </Tabs>
+
+                                <div className="px-3 flex-grow-1">
+                                  <h6
+                                    className="mb-1 fw-bold"
+                                    style={{ fontSize: "0.8em" }}
+                                  >
+                                    {item.name}
+                                  </h6>
+                                  <p
+                                    className="text-muted mb-0"
+                                    style={{ fontSize: "0.7em" }}
+                                  >
+                                    {item.description ||
+                                      "No description available."}
+                                  </p>
+                                </div>
+
+                                <div className="text-end">
+                                  <div
+                                    className="fw-bold mb-1"
+                                    style={{
+                                      fontSize: "0.7em",
+                                      marginRight: "10px",
+                                    }}
+                                  >
+                                    {item.price ? `Rs ${item.price}` : "Free"}
+                                  </div>
+                                  <Button
+                                    variant="outline-warning"
+                                    size="sm"
+                                    onClick={() => handleAddToCart(item)}
+                                    style={{
+                                      fontWeight: "bold",
+                                      marginRight: "10px",
+                                    }}
+                                  >
+                                    ADD
+                                  </Button>
+                                </div>
+                              </Card>
+                            </Col>
+                          ))}
+                      </Row>
+                    </Tab>
+                  ))}
+                </Tabs>
+              </div>
+            ))}
 
             {/* Scroll Target for Cart */}
             <div ref={cartRef}></div>
@@ -351,7 +414,7 @@ const QRCodePage = () => {
                       key={item.id}
                       className="d-flex justify-content-between align-items-center cart-item"
                     >
-                      <div>
+                      <div style={{ fontSize: "0.8em" }}>
                         <strong>{item.name}</strong> (Qty: {item.qty})
                       </div>
                       <Button
@@ -378,6 +441,7 @@ const QRCodePage = () => {
               </div>
             </Card>
           </div>
+          <div className="header-section mt-2"></div>
 
           {/* Floating Scroll Button */}
           <Button
