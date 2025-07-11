@@ -240,7 +240,7 @@ const QRCodePage = () => {
               imageId={homeData.logo}
               altText="Company Logo"
               className="company-logo mb-2"
-              style={{ width: "80px", height: "80px", maxWidth: "100%", maxHeight: "100%" }}
+              style={{ width: "80px", height: "80px", maxWidth: "100%", maxHeight: "100%"}}
             />
           )}
         </div>
