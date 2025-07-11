@@ -6,6 +6,7 @@ import {
   Card,
   Button,
   Modal,
+  Accordion, // Added Accordion for add-ons
   Form,
   Spinner,
 } from "react-bootstrap";
@@ -31,6 +32,7 @@ const PendingOrders = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const userRole = localStorage.getItem("user_role") || "";
   const branchId = localStorage.getItem("branch_id") || "";
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -55,12 +57,12 @@ const PendingOrders = () => {
     setLoading(true);
     try {
       const response = await apiRequest(
-        `${ORDER_ENDPOINT}?filter[_and][0][_and][0][table][branch][_eq]=${branchId}&filter[_and][1][status][_eq]=pending&fields=*,table.*,table.branch.*,Menu_Items.*,Menu_Items.menu_items_id.name,Menu_Items.menu_items_id.price&limit=-1`
+        `${ORDER_ENDPOINT}?filter[_and][0][_and][0][table][branch][_eq]=${branchId}&filter[_and][1][status][_eq]=pending&fields=*,table.*,table.branch.*,Menu_Items.*,Menu_Items.menu_items_id.name,Menu_Items.menu_items_id.price,Menu_Items.selected_add_ons.id,Menu_Items.selected_add_ons.name,Menu_Items.selected_add_ons.price&limit=-1`
       );
       setorderList(response.data);
       setLoading(false);
     } catch (error) {
-      toast.error("Failed to load student review data.");
+      toast.error("Failed to load pending orders.");
       setLoading(false);
     }
   };
@@ -70,6 +72,8 @@ const PendingOrders = () => {
   }, []);
 
   const handleEdit = (data) => {
+    // This function seems unused in your current code.
+    // If you plan to implement editing, you can set selectedOrder and show a different modal or form.
     setShowModal(true);
   };
 
@@ -100,6 +104,23 @@ const PendingOrders = () => {
     }
   };
 
+  // Function to calculate total price for an order
+  const calculateOrderTotalPrice = (order) => {
+    let totalPrice = 0;
+    order.Menu_Items.forEach((item) => {
+      const itemPrice = (item.menu_items_id?.price || 0) * (item.qty || 0);
+      let addOnsPrice = 0;
+      if (item.selected_add_ons && item.selected_add_ons.length > 0) {
+        addOnsPrice = item.selected_add_ons.reduce(
+          (sum, addOn) => sum + (addOn.price || 0),
+          0
+        );
+      }
+      totalPrice += itemPrice + addOnsPrice;
+    });
+    return totalPrice;
+  };
+
   // DataTable columns
   const columns = [
     { Header: "ID", accessor: "id" },
@@ -109,12 +130,17 @@ const PendingOrders = () => {
       Header: "Date Created",
       accessor: (row) => {
         const originalDate = new Date(row.date_created);
-        originalDate.setHours(originalDate.getHours() + 5);
-        originalDate.setMinutes(originalDate.getMinutes() + 30);
+        // Adjust for local time (assuming UTC from backend and Sri Lankan time +5:30)
+        originalDate.setHours(originalDate.getHours());
+        originalDate.setMinutes(originalDate.getMinutes());
         const date = originalDate.toISOString().split("T")[0];
         const time = originalDate.toISOString().split("T")[1].split(".")[0];
         return `${date} ${time}`;
       },
+    },
+    {
+      Header: "Total Price",
+      accessor: (row) => `${calculateOrderTotalPrice(row).toFixed(2)} LKR`, // Display total price
     },
     {
       Header: "Actions",
@@ -242,31 +268,63 @@ const PendingOrders = () => {
                 selectedOrder.Menu_Items.map((item, index) => (
                   <Card key={index} className="mb-3 shadow-sm">
                     <Card.Body>
-                      <Row>
-                        <Col md={8}>
+                      <Row className="align-items-center">
+                        <Col md={6}>
                           <p className="mb-1">
                             <strong>Item:</strong>{" "}
                             {item.menu_items_id?.name || "N/A"}
                           </p>
                         </Col>
-                        <Col md={4}>
+                        <Col md={3}>
                           <p className="mb-1">
                             <strong>Qty:</strong> {item.qty || 0}
                           </p>
                         </Col>
-                        <Col md={4}>
+                        <Col md={3}>
                           <p className="mb-1">
                             <strong>Unit Price:</strong>{" "}
-                            {item.menu_items_id?.price || 0} LKR
+                            {(item.menu_items_id?.price || 0).toFixed(2)} LKR
                           </p>
                         </Col>
                       </Row>
+                      {item.selected_add_ons &&
+                        item.selected_add_ons.length > 0 && (
+                          <Accordion className="mt-2">
+                            <Accordion.Item eventKey="0">
+                              <Accordion.Header>
+                                View Add-ons ({item.selected_add_ons.length})
+                              </Accordion.Header>
+                              <Accordion.Body>
+                                <ul>
+                                  {item.selected_add_ons.map(
+                                    (addOn, addOnIndex) => (
+                                      <li key={addOnIndex}>
+                                        {addOn.name} (
+                                        {addOn.price.toFixed(2)} LKR)
+                                      </li>
+                                    )
+                                  )}
+                                </ul>
+                              </Accordion.Body>
+                            </Accordion.Item>
+                          </Accordion>
+                        )}
                     </Card.Body>
                   </Card>
                 ))
               ) : (
                 <p>No items found for this order.</p>
               )}
+
+              <hr />
+              <div className="d-flex justify-content-end align-items-center mb-3">
+                <h4>
+                  Total Order Price:{" "}
+                  <strong>
+                    {calculateOrderTotalPrice(selectedOrder).toFixed(2)} LKR
+                  </strong>
+                </h4>
+              </div>
 
               {/* Status change button */}
               {selectedOrder.status === "pending" && (

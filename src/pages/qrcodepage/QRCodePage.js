@@ -9,6 +9,7 @@ import {
   ListGroup,
   Button,
   Form,
+  Accordion, // Import Accordion
 } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -50,7 +51,9 @@ const QRCodePage = () => {
       setLoading(true);
       try {
         const [tableResponse, settingsResponse] = await Promise.all([
-          apiRequest(`${TABLE_ENDPOINT}?filter[qr_prefix][_eq]=${qr_prefix}&fields=*,branch.*`),
+          apiRequest(
+            `${TABLE_ENDPOINT}?filter[qr_prefix][_eq]=${qr_prefix}&fields=*,branch.*`
+          ),
           apiRequest(`${SETTINGS_ENDPOINT}`),
         ]);
 
@@ -84,21 +87,8 @@ const QRCodePage = () => {
           `${MENU_CATEGORY_ENDPOINT}?filter[menu_items][menu_items_id][branches][branches_id][id][_eq]=${tableData.branch.id}&fields=id,name,parent_category&limit=-1`
         );
 
-        const branchId = tableData.branch.id;
-        // Filter categories to only include those that have menu items linked to the current branch
-        const relevantCategories = catRes.data.filter(category =>
-          // Note: The previous filtering logic checked `menu_items` array directly.
-          // Since we're now only fetching ID/Name/Parent for categories,
-          // we need to rely on the API to give us only relevant categories
-          // or adjust if `menu_items` comes as a meta field here.
-          // For simplicity, let's assume the filter query on MENU_CATEGORY_ENDPOINT
-          // correctly returns only categories relevant to the branch.
-          // If not, you might need a separate endpoint for category relevance.
-          true // Assuming filter in API request does the job, otherwise re-add client-side filter
-        );
-
         // Group categories by parent_category
-        const grouped = relevantCategories.reduce((acc, cat) => {
+        const grouped = catRes.data.reduce((acc, cat) => {
           const parent = cat?.parent_category || "Others";
           if (!acc[parent]) acc[parent] = [];
           acc[parent].push(cat);
@@ -135,7 +125,10 @@ const QRCodePage = () => {
       if (selectedCategoryObject) break;
     }
 
-    if (!selectedCategoryObject || categoryItemsCache[selectedCategoryObject.id]) {
+    if (
+      !selectedCategoryObject ||
+      categoryItemsCache[selectedCategoryObject.id]
+    ) {
       return; // Category not found or items already cached
     }
 
@@ -147,11 +140,13 @@ const QRCodePage = () => {
       );
 
       const filteredItems =
-        res.data.menu_items?.filter((mi) =>
-          mi.menu_items_id.branches.some(
-            (b) => b.branches_id.id === tableData.branch.id
+        res.data.menu_items
+          ?.filter((mi) =>
+            mi.menu_items_id.branches.some(
+              (b) => b.branches_id.id === tableData.branch.id
+            )
           )
-        ).map((i) => i.menu_items_id) || []; // Extract the actual menu item object
+          .map((i) => i.menu_items_id) || []; // Extract the actual menu item object
 
       setCategoryItemsCache((prev) => ({
         ...prev,
@@ -176,21 +171,74 @@ const QRCodePage = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleAddToCart = (item) => {
-    const exists = cart.find((c) => c.id === item.id);
+  const handleAddToCart = (item, selectedAddOns = []) => {
+    // Create a unique identifier for the item with its selected add-ons
+    const itemIdentifier = `${item.id}-${selectedAddOns
+      .map((ao) => ao.id)
+      .sort()
+      .join("-")}`;
+
+    const exists = cart.find((c) => c.itemIdentifier === itemIdentifier);
+
+    // Calculate total price including add-ons
+    const addOnsPrice = selectedAddOns.reduce((sum, ao) => sum + ao.price, 0);
+    const itemTotalPrice = item.price + addOnsPrice;
+
     if (exists) {
-      setCart(cart.map((c) => (c.id === item.id ? { ...c, qty: c.qty + 1 } : c)));
+      setCart(
+        cart.map((c) =>
+          c.itemIdentifier === itemIdentifier ? { ...c, qty: c.qty + 1 } : c
+        )
+      );
     } else {
-      setCart([...cart, { ...item, qty: 1 }]);
+      setCart([
+        ...cart,
+        {
+          ...item,
+          qty: 1,
+          selectedAddOns: selectedAddOns,
+          itemTotalPrice: itemTotalPrice, // Store total price for this cart item
+          itemIdentifier: itemIdentifier,
+        },
+      ]);
     }
     toast.success(`${item.name} added to cart`);
   };
 
-  const handleRemoveFromCart = (itemId) => {
-    setCart(cart.filter((item) => item.id !== itemId));
+  const handleRemoveFromCart = (itemIdentifier) => {
+    setCart(cart.filter((item) => item.itemIdentifier !== itemIdentifier));
     toast.info("Item removed from cart.");
   };
 
+  // const handlePlaceOrder = async () => {
+  //   if (cart.length === 0) {
+  //     toast.error("Please select at least one item to place an order.");
+  //     return;
+  //   }
+
+  //   try {
+  //     const orderPayload = {
+  //       Name: name.trim() || `order_${Date.now()}`,
+  //       Mobile_Number: mobile.trim(),
+  //       status: "pending",
+  //       table: tableData.id,
+  //       Menu_Items: cart.map((item) => ({
+  //         menu_items_id: item.id,
+  //         qty: item.qty,
+  //         selected_add_ons: item.selectedAddOns.map(ao => ({ add_ons_id: ao.id })), // Include selected add-ons
+  //       })),
+  //     };
+  //     console.log("order:",orderPayload);
+  //     await apiRequest(ORDER_ENDPOINT, "POST", orderPayload);
+  //     toast.success("Order placed successfully!");
+  //     setCart([]);
+  //     setName("");
+  //     setMobile("");
+  //   } catch (e) {
+  //     console.error("Order placement failed:", e);
+  //     toast.error("Failed to place order. Please try again.");
+  //   }
+  // };
   const handlePlaceOrder = async () => {
     if (cart.length === 0) {
       toast.error("Please select at least one item to place an order.");
@@ -203,11 +251,25 @@ const QRCodePage = () => {
         Mobile_Number: mobile.trim(),
         status: "pending",
         table: tableData.id,
-        Menu_Items: cart.map((item) => ({
-          menu_items_id: item.id,
-          qty: item.qty,
-        })),
+        Menu_Items: {
+          create: cart.map((item) => ({
+            menu_items_id: { id: item.id },
+            qty: item.qty.toString(), // ensure it's a string if required by backend
+            selected_add_ons: {
+              create: [],
+              update: item.selectedAddOns.map((ao) => ({
+                selected_add_ons: "+",
+                id: ao.id
+              })),
+              delete: [],
+            },
+          })),
+          update: [],
+          delete: [],
+        },
       };
+
+      console.log("order:", orderPayload);
       await apiRequest(ORDER_ENDPOINT, "POST", orderPayload);
       toast.success("Order placed successfully!");
       setCart([]);
@@ -220,18 +282,30 @@ const QRCodePage = () => {
   };
 
   if (loading) return <BurgerSpinner />;
-  if (!tableData) return <div className="text-center mt-5">Oops! We couldn't find your table or menu. Please check the QR code again.</div>;
-
+  if (!tableData)
+    return (
+      <div className="text-center mt-5">
+        Oops! We couldn't find your table or menu. Please check the QR code
+        again.
+      </div>
+    );
 
   // Find the currently selected category's ID to retrieve items from cache
-  const currentSelectedCategory = Object.values(groupedCategories).flat().find(cat => cat.name === selectedTab);
-  const currentItems = currentSelectedCategory ? (categoryItemsCache[currentSelectedCategory.id] || []) : [];
-
+  const currentSelectedCategory = Object.values(groupedCategories)
+    .flat()
+    .find((cat) => cat.name === selectedTab);
+  const currentItems = currentSelectedCategory
+    ? categoryItemsCache[currentSelectedCategory.id] || []
+    : [];
 
   return (
     <div className="container-fluid p-0">
-      <ToastContainer position="top-center" autoClose={3000} hideProgressBar style={{ fontSize: "0.8rem", padding: "3px" }} />
-
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar
+        style={{ fontSize: "0.8rem", padding: "3px" }}
+      />
       {/* Header Section */}
       <div className="header-section">
         <div className="header-logo">
@@ -240,20 +314,45 @@ const QRCodePage = () => {
               imageId={homeData.logo}
               altText="Company Logo"
               className="company-logo mb-2"
-              style={{ width: "80px", height: "80px", maxWidth: "100%", maxHeight: "100%"}}
+              style={{
+                width: "80px",
+                height: "80px",
+                maxWidth: "100%",
+                maxHeight: "100%",
+              }}
             />
           )}
         </div>
         <div className="header-details">
-          <h4 style={{ display: "flex", alignItems: "center", gap: "8px", margin: 0, fontSize: "15px" }}>
+          <h4
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              margin: 0,
+              fontSize: "15px",
+            }}
+          >
             QuickDine - {homeData?.Name || ""}
-            <span style={{ width: 24, height: 24, backgroundColor: "white", color: "black", borderRadius: "50%", fontSize: 12, fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span
+              style={{
+                width: 24,
+                height: 24,
+                backgroundColor: "white",
+                color: "black",
+                borderRadius: "50%",
+                fontSize: 12,
+                fontWeight: "bold",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
               {tableData.table_number}
             </span>
           </h4>
         </div>
       </div>
-
       <div className="container mt-4 main-content-area">
         {/* Optional Customer Info Card */}
         {homeData?.customer_details && (
@@ -271,7 +370,9 @@ const QRCodePage = () => {
                 <Row className="form-row-custom">
                   <Col md={6}>
                     <Form.Group className="mb-2">
-                      <Form.Label className="form-label-styled">Your Name (Not Mandatory)</Form.Label>
+                      <Form.Label className="form-label-styled">
+                        Your Name (Not Mandatory)
+                      </Form.Label>
                       <Form.Control
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -282,7 +383,9 @@ const QRCodePage = () => {
                   </Col>
                   <Col md={6}>
                     <Form.Group className="mb-4">
-                      <Form.Label className="form-label-styled">Mobile Number (Not Mandatory)</Form.Label>
+                      <Form.Label className="form-label-styled">
+                        Mobile Number (Not Mandatory)
+                      </Form.Label>
                       <Form.Control
                         value={mobile}
                         onChange={(e) => setMobile(e.target.value)}
@@ -300,63 +403,53 @@ const QRCodePage = () => {
 
         {/* --- Menu Section by Parent Category --- */}
         <div ref={menuRef}></div>
-        {Object.entries(groupedCategories).map(([parentCategoryName, categoriesInGroup]) => (
-          <div key={parentCategoryName} className="mb-4">
-            {/* Display Parent Category Name */}
-            <h5 className="fw-bold text-uppercase mb-3">{parentCategoryName}</h5>
+        {Object.entries(groupedCategories).map(
+          ([parentCategoryName, categoriesInGroup]) => (
+            <div key={parentCategoryName} className="mb-4">
+              {/* Display Parent Category Name */}
+              <h5 className="fw-bold text-uppercase mb-3">
+                {parentCategoryName}
+              </h5>
 
-            {/* Tabs for Sub-Categories within this Parent Category */}
-            <Tabs activeKey={selectedTab} onSelect={(k) => setSelectedTab(k)} className="mb-3 custom-tabs-container">
-              {categoriesInGroup.map((cat) => (
-                <Tab eventKey={cat.name} title={cat.name} key={cat.id}>
-                  {loadingCategoryItems && selectedTab === cat.name ? (
-                    <div className="text-center py-5">
-                      <BurgerSpinner />
-                      <p>Loading items...</p>
-                    </div>
-                  ) : (
-                    <Row className="g-2">
-                      {currentItems.length > 0 ? (
-                        currentItems.map((item) => (
-                          <Col xs={12} md={4} key={item.id}>
-                            <Card className="p-1 d-flex flex-row align-items-center mb-0">
-                              <div style={{ width: 90, height: 90, flexShrink: 0 }}>
-                                {item.image ? (
-                                  <ImageLoader altText={item.name} imageId={item.image} className="img-fluid rounded" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                                ) : (
-                                  <img src={demoFood} alt={item.name} className="img-fluid rounded" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                                )}
-                              </div>
-                              <div className="px-3 flex-grow-1">
-                                <h6 className="mb-1 fw-bold" style={{ fontSize: "0.8em" }}>{item.name}</h6>
-                                <span style={{ fontFamily: "'Montserrat', sans-serif" }}>
-                                <p className="text-muted mb-0" style={{ fontSize: "0.7em"}}>
-                                  {item.description || "No description available."}
-                                </p></span>
-                              </div>
-                              <div className="text-end">
-                                <div className="fw-bold mb-1" style={{ fontSize: "0.7em", marginRight: "10px" }}>
-                                  {item.price ? `Rs ${item.price}` : "Free"}
-                                </div>
-                                <Button variant="outline-warning" size="sm" onClick={() => handleAddToCart(item)} style={{ fontWeight: "bold", marginRight: "10px" }}>
-                                  ADD
-                                </Button>
-                              </div>
-                            </Card>
+              {/* Tabs for Sub-Categories within this Parent Category */}
+              <Tabs
+                activeKey={selectedTab}
+                onSelect={(k) => setSelectedTab(k)}
+                className="mb-3 custom-tabs-container"
+              >
+                {categoriesInGroup.map((cat) => (
+                  <Tab eventKey={cat.name} title={cat.name} key={cat.id}>
+                    {loadingCategoryItems && selectedTab === cat.name ? (
+                      <div className="text-center py-5">
+                        <BurgerSpinner />
+                        <p>Loading items...</p>
+                      </div>
+                    ) : (
+                      <Row className="g-2">
+                        {currentItems.length > 0 ? (
+                          currentItems.map((item) => (
+                            <Col xs={12} md={4} key={item.id}>
+                              <MenuItemCard
+                                item={item}
+                                handleAddToCart={handleAddToCart}
+                              />
+                            </Col>
+                          ))
+                        ) : (
+                          <Col xs={12}>
+                            <p className="text-center text-muted">
+                              No menu items found for this category.
+                            </p>
                           </Col>
-                        ))
-                      ) : (
-                        <Col xs={12}>
-                          <p className="text-center text-muted">No menu items found for this category.</p>
-                        </Col>
-                      )}
-                    </Row>
-                  )}
-                </Tab>
-              ))}
-            </Tabs>
-          </div>
-        ))}
+                        )}
+                      </Row>
+                    )}
+                  </Tab>
+                ))}
+              </Tabs>
+            </div>
+          )
+        )}
         {/* --- End Menu Section by Parent Category --- */}
 
         {/* Cart Section */}
@@ -368,24 +461,47 @@ const QRCodePage = () => {
           ) : (
             <ListGroup variant="flush">
               {cart.map((item) => (
-                <ListGroup.Item key={item.id} className="d-flex justify-content-between align-items-center cart-item">
+                <ListGroup.Item
+                  key={item.itemIdentifier} // Use itemIdentifier here
+                  className="d-flex justify-content-between align-items-center cart-item"
+                >
                   <div style={{ fontSize: "0.8em" }}>
                     <strong>{item.name}</strong> (Qty: {item.qty})
+                    {item.selectedAddOns && item.selectedAddOns.length > 0 && (
+                      <div className="cart-addons-display">
+                        <small>
+                          Add-ons:{" "}
+                          {item.selectedAddOns.map((ao) => ao.name).join(", ")}
+                        </small>
+                      </div>
+                    )}
+                    <div className="fw-bold" style={{ fontSize: "0.9em" }}>
+                      Rs {item.itemTotalPrice}
+                    </div>
                   </div>
-                  <Button variant="danger" size="sm" onClick={() => handleRemoveFromCart(item.id)}>Remove</Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => handleRemoveFromCart(item.itemIdentifier)} // Use itemIdentifier here
+                  >
+                    Remove
+                  </Button>
                 </ListGroup.Item>
               ))}
             </ListGroup>
           )}
           <div className="text-end mt-3">
-            <Button variant="success" onClick={handlePlaceOrder} disabled={cart.length === 0}>
+            <Button
+              variant="success"
+              onClick={handlePlaceOrder}
+              disabled={cart.length === 0}
+            >
               Place Order
             </Button>
           </div>
         </Card>
       </div>
       <div className="header-section mt-2"></div> {/* Just a spacer */}
-
       {/* Floating Scroll Button */}
       <Button
         variant="dark"
@@ -399,6 +515,109 @@ const QRCodePage = () => {
         {showGoToCart ? "⬇️ Go to Cart" : "⬆️ Menu"}
       </Button>
     </div>
+  );
+};
+
+// New MenuItemCard component to encapsulate item display logic
+const MenuItemCard = ({ item, handleAddToCart }) => {
+  const [selectedAddOns, setSelectedAddOns] = useState([]);
+  const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+
+  const handleAddOnChange = (addOn) => {
+    setSelectedAddOns((prev) =>
+      prev.some((ao) => ao.id === addOn.id)
+        ? prev.filter((ao) => ao.id !== addOn.id)
+        : [...prev, addOn]
+    );
+  };
+
+  const currentItemPrice =
+    item.price + selectedAddOns.reduce((sum, ao) => sum + ao.price, 0);
+
+  return (
+    <Card className="p-1 mb-0 menu-item-card">
+      <div className="d-flex flex-row align-items-center">
+        <div style={{ width: 90, height: 90, flexShrink: 0 }}>
+          {item.image ? (
+            <ImageLoader
+              altText={item.name}
+              imageId={item.image}
+              className="img-fluid rounded"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          ) : (
+            <img
+              src={demoFood}
+              alt={item.name}
+              className="img-fluid rounded"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          )}
+        </div>
+        <div className="px-3 flex-grow-1">
+          <h6 className="mb-1 fw-bold" style={{ fontSize: "0.8em" }}>
+            {item.name}
+          </h6>
+          <span style={{ fontFamily: "'Montserrat', sans-serif" }}>
+            <p className="text-muted mb-0" style={{ fontSize: "0.7em" }}>
+              {item.description || "No description available."}
+            </p>
+          </span>
+          {item.labels && item.labels.length > 0 && (
+            <div className="item-labels">
+              {item.labels.map((label) => (
+                <span key={label.labels_id.id} className="menu-item-label">
+                  {label.labels_id.label_name}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="text-end">
+          <div
+            className="fw-bold mb-1"
+            style={{ fontSize: "0.7em", marginRight: "10px" }}
+          >
+            {currentItemPrice ? `Rs ${currentItemPrice}` : "Free"}
+          </div>
+          <Button
+            variant="outline-warning"
+            size="sm"
+            onClick={() => handleAddToCart(item, selectedAddOns)}
+            style={{ fontWeight: "bold", marginRight: "10px" }}
+          >
+            ADD
+          </Button>
+        </div>
+      </div>
+
+      {item.add_ons && item.add_ons.length > 0 && (
+        <Accordion className="add-ons-accordion">
+          <Accordion.Item eventKey="0">
+            <Accordion.Header
+              onClick={() => setIsAccordionOpen(!isAccordionOpen)}
+            >
+              {isAccordionOpen ? "Hide Add-ons" : "Show Add-ons"}
+            </Accordion.Header>
+            <Accordion.Body className="add-ons-body">
+              {item.add_ons.map((addOn) => (
+                <Form.Check
+                  key={addOn.add_ons_id.id}
+                  type="checkbox"
+                  id={`addon-${item.id}-${addOn.add_ons_id.id}`}
+                  label={`${addOn.add_ons_id.name} (Rs ${addOn.add_ons_id.price})`}
+                  checked={selectedAddOns.some(
+                    (ao) => ao.id === addOn.add_ons_id.id
+                  )}
+                  onChange={() => handleAddOnChange(addOn.add_ons_id)}
+                  className="add-on-checkbox"
+                />
+              ))}
+            </Accordion.Body>
+          </Accordion.Item>
+        </Accordion>
+      )}
+    </Card>
   );
 };
 

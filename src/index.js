@@ -9,6 +9,16 @@ import { I18nextProvider } from "react-i18next"; // Import I18nextProvider
 import i18n from "./i18n"; // Import the i18n config
 import { LoadScript } from "@react-google-maps/api";
 
+// Suppress ResizeObserver loop error
+window.addEventListener("error", (e) => {
+  if (
+    e.message === "ResizeObserver loop completed with undelivered notifications." ||
+    e.message === "ResizeObserver loop limit exceeded"
+  ) {
+    e.stopImmediatePropagation();
+  }
+});
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>

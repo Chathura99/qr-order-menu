@@ -1,19 +1,29 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", sans-serif; /* Using Inter font */
+  overflow: hidden; /* Prevent body scroll */
+}
+
 .burger-spinner {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background-color: #fcefd3; /* Light background for food theme */
-  font-family: 'Arial', sans-serif;
+  background-color: var(--main-color); /* Light background for food theme */
   position: relative;
   overflow: hidden;
+  box-sizing: border-box; /* Include padding in element's total width and height */
 }
 
 .floating-items {
   display: flex;
   gap: 30px;
   animation: floatUpDown 3s ease-in-out infinite alternate;
+  flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+  justify-content: center; /* Center items when wrapped */
+  padding: 20px; /* Add some padding for smaller screens */
 }
 
 .item {
@@ -27,6 +37,7 @@
   justify-content: center;
   font-size: 36px;
   animation: floatItem 2.5s ease-in-out infinite alternate;
+  margin: 10px; /* Add margin for spacing between items on wrap */
 }
 
 /* Custom floating variation for each item */
@@ -43,8 +54,10 @@
 .loading-text {
   margin-top: 30px;
   font-size: 22px;
-  color: #333;
+  color: #ffffff;
   font-weight: bold;
+  text-align: center; /* Center text on smaller screens */
+  padding: 0 20px; /* Add horizontal padding */
 }
 
 @keyframes floatItem {
@@ -53,5 +66,63 @@
   }
   100% {
     transform: translateY(-20px);
+  }
+}
+
+@keyframes floatUpDown {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(
+      -15px
+    ); /* Slightly less vertical movement for the group */
+  }
+}
+
+/* Media Queries for Mobile Responsiveness */
+@media (max-width: 768px) {
+  .floating-items {
+    gap: 20px; /* Reduce gap between items */
+  }
+
+  .item {
+    width: 60px; /* Smaller item size */
+    height: 60px;
+    font-size: 28px; /* Smaller icon size */
+    border-radius: 12px; /* Slightly smaller border-radius */
+  }
+
+  .loading-text {
+    margin-top: 20px;
+    font-size: 18px; /* Smaller font size for loading text */
+  }
+
+  @keyframes floatItem {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-15px); /* Less vertical movement for items */
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .floating-items {
+    gap: 15px; /* Even smaller gap */
+  }
+
+  .item {
+    width: 50px; /* Even smaller item size */
+    height: 50px;
+    font-size: 24px; /* Even smaller icon size */
+    border-radius: 10px;
+    margin: 5px; /* Reduce margin */
+  }
+
+  .loading-text {
+    margin-top: 15px;
+    font-size: 16px; /* Smallest font size for loading text */
   }
 }
