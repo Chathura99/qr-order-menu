@@ -143,7 +143,7 @@ const QRCodePage = () => {
     try {
       // Fetch details for the specific category, including its menu items
       const res = await apiRequest(
-        `${MENU_CATEGORY_ENDPOINT}/${selectedCategoryObject.id}?fields=menu_items.*,menu_items.menu_items_id.*,menu_items.menu_items_id.branches.branches_id.id&limit=-1`
+        `${MENU_CATEGORY_ENDPOINT}/${selectedCategoryObject.id}?fields=menu_items.*,menu_items.menu_items_id.labels.labels_id.*,menu_items.menu_items_id.add_ons.add_ons_id.*,menu_items.menu_items_id.*,menu_items.menu_items_id.branches.branches_id.id&limit=-1`
       );
 
       const filteredItems =
@@ -329,9 +329,10 @@ const QRCodePage = () => {
                               </div>
                               <div className="px-3 flex-grow-1">
                                 <h6 className="mb-1 fw-bold" style={{ fontSize: "0.8em" }}>{item.name}</h6>
-                                <p className="text-muted mb-0" style={{ fontSize: "0.7em" }}>
+                                <span style={{ fontFamily: "'Montserrat', sans-serif" }}>
+                                <p className="text-muted mb-0" style={{ fontSize: "0.7em"}}>
                                   {item.description || "No description available."}
-                                </p>
+                                </p></span>
                               </div>
                               <div className="text-end">
                                 <div className="fw-bold mb-1" style={{ fontSize: "0.7em", marginRight: "10px" }}>
