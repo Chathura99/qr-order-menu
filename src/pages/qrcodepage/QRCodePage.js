@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback, memo } from "react";
 import { useParams } from "react-router-dom";
 import {
   Card,
@@ -171,80 +171,54 @@ const QRCodePage = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleAddToCart = (item, selectedAddOns = []) => {
-    // Create a unique identifier for the item with its selected add-ons
-    const itemIdentifier = `${item.id}-${selectedAddOns
-      .map((ao) => ao.id)
-      .sort()
-      .join("-")}`;
+  // Memoize add-to-cart handler
+  const handleAddToCart = useCallback(
+    (item, selectedAddOns = []) => {
+      const itemIdentifier = `${item.id}-${selectedAddOns
+        .map((ao) => ao.id)
+        .sort()
+        .join("-")}`;
+      const exists = cart.find((c) => c.itemIdentifier === itemIdentifier);
+      const addOnsPrice = selectedAddOns.reduce((sum, ao) => sum + ao.price, 0);
+      const itemTotalPrice = item.price + addOnsPrice;
+      if (exists) {
+        setCart(
+          cart.map((c) =>
+            c.itemIdentifier === itemIdentifier ? { ...c, qty: c.qty + 1 } : c
+          )
+        );
+      } else {
+        setCart([
+          ...cart,
+          {
+            ...item,
+            qty: 1,
+            selectedAddOns: selectedAddOns,
+            itemTotalPrice: itemTotalPrice,
+            itemIdentifier: itemIdentifier,
+          },
+        ]);
+      }
+      toast.success(`${item.name} added to cart`);
+    },
+    [cart]
+  );
 
-    const exists = cart.find((c) => c.itemIdentifier === itemIdentifier);
+  // Memoize remove-from-cart handler
+  const handleRemoveFromCart = useCallback(
+    (itemIdentifier) => {
+      setCart(cart.filter((item) => item.itemIdentifier !== itemIdentifier));
+      toast.info("Item removed from cart.");
+    },
+    [cart]
+  );
 
-    // Calculate total price including add-ons
-    const addOnsPrice = selectedAddOns.reduce((sum, ao) => sum + ao.price, 0);
-    const itemTotalPrice = item.price + addOnsPrice;
-
-    if (exists) {
-      setCart(
-        cart.map((c) =>
-          c.itemIdentifier === itemIdentifier ? { ...c, qty: c.qty + 1 } : c
-        )
-      );
-    } else {
-      setCart([
-        ...cart,
-        {
-          ...item,
-          qty: 1,
-          selectedAddOns: selectedAddOns,
-          itemTotalPrice: itemTotalPrice, // Store total price for this cart item
-          itemIdentifier: itemIdentifier,
-        },
-      ]);
-    }
-    toast.success(`${item.name} added to cart`);
-  };
-
-  const handleRemoveFromCart = (itemIdentifier) => {
-    setCart(cart.filter((item) => item.itemIdentifier !== itemIdentifier));
-    toast.info("Item removed from cart.");
-  };
-
-  // const handlePlaceOrder = async () => {
-  //   if (cart.length === 0) {
-  //     toast.error("Please select at least one item to place an order.");
-  //     return;
-  //   }
-
-  //   try {
-  //     const orderPayload = {
-  //       Name: name.trim() || `order_${Date.now()}`,
-  //       Mobile_Number: mobile.trim(),
-  //       status: "pending",
-  //       table: tableData.id,
-  //       Menu_Items: cart.map((item) => ({
-  //         menu_items_id: item.id,
-  //         qty: item.qty,
-  //         selected_add_ons: item.selectedAddOns.map(ao => ({ add_ons_id: ao.id })), // Include selected add-ons
-  //       })),
-  //     };
-  //     console.log("order:",orderPayload);
-  //     await apiRequest(ORDER_ENDPOINT, "POST", orderPayload);
-  //     toast.success("Order placed successfully!");
-  //     setCart([]);
-  //     setName("");
-  //     setMobile("");
-  //   } catch (e) {
-  //     console.error("Order placement failed:", e);
-  //     toast.error("Failed to place order. Please try again.");
-  //   }
-  // };
-  const handlePlaceOrder = async () => {
+  // Memoize place order handler
+  const handlePlaceOrder = useCallback(async () => {
     if (cart.length === 0) {
       toast.error("Please select at least one item to place an order.");
       return;
     }
-
     try {
       const orderPayload = {
         Name: name.trim() || `order_${Date.now()}`,
@@ -254,12 +228,12 @@ const QRCodePage = () => {
         Menu_Items: {
           create: cart.map((item) => ({
             menu_items_id: { id: item.id },
-            qty: item.qty.toString(), // ensure it's a string if required by backend
+            qty: item.qty.toString(),
             selected_add_ons: {
               create: [],
               update: item.selectedAddOns.map((ao) => ({
                 selected_add_ons: "+",
-                id: ao.id
+                id: ao.id,
               })),
               delete: [],
             },
@@ -268,8 +242,6 @@ const QRCodePage = () => {
           delete: [],
         },
       };
-
-      console.log("order:", orderPayload);
       await apiRequest(ORDER_ENDPOINT, "POST", orderPayload);
       toast.success("Order placed successfully!");
       setCart([]);
@@ -279,7 +251,7 @@ const QRCodePage = () => {
       console.error("Order placement failed:", e);
       toast.error("Failed to place order. Please try again.");
     }
-  };
+  }, [cart, name, mobile, tableData]);
 
   if (loading) return <BurgerSpinner />;
   if (!tableData)
@@ -299,7 +271,14 @@ const QRCodePage = () => {
     : [];
 
   return (
-    <div className="container-fluid p-0">
+    <div
+      className="container-fluid p-0"
+      style={{
+        minHeight: "100vh",
+        overflowY: "visible",
+        WebkitOverflowScrolling: "touch", // for iOS smooth scrolling
+      }}
+    >
       <ToastContainer
         position="top-center"
         autoClose={3000}
@@ -320,6 +299,7 @@ const QRCodePage = () => {
                 maxWidth: "100%",
                 maxHeight: "100%",
               }}
+              loading="lazy"
             />
           )}
         </div>
@@ -414,14 +394,14 @@ const QRCodePage = () => {
               {/* Tabs for Sub-Categories within this Parent Category */}
               <Tabs
                 activeKey={selectedTab}
-                onSelect={(k) => setSelectedTab(k)}
+                onSelect={setSelectedTab}
                 className="mb-3 custom-tabs-container"
               >
                 {categoriesInGroup.map((cat) => (
                   <Tab eventKey={cat.name} title={cat.name} key={cat.id}>
                     {loadingCategoryItems && selectedTab === cat.name ? (
                       <div className="text-center py-5">
-                        <BurgerSpinner />
+                        {/* <BurgerSpinner /> */}
                         <p>Loading items...</p>
                       </div>
                     ) : (
@@ -429,7 +409,7 @@ const QRCodePage = () => {
                         {currentItems.length > 0 ? (
                           currentItems.map((item) => (
                             <Col xs={12} md={4} key={item.id}>
-                              <MenuItemCard
+                              <MemoizedMenuItemCard
                                 item={item}
                                 handleAddToCart={handleAddToCart}
                               />
@@ -462,7 +442,7 @@ const QRCodePage = () => {
             <ListGroup variant="flush">
               {cart.map((item) => (
                 <ListGroup.Item
-                  key={item.itemIdentifier} // Use itemIdentifier here
+                  key={item.itemIdentifier}
                   className="d-flex justify-content-between align-items-center cart-item"
                 >
                   <div style={{ fontSize: "0.8em" }}>
@@ -482,7 +462,7 @@ const QRCodePage = () => {
                   <Button
                     variant="danger"
                     size="sm"
-                    onClick={() => handleRemoveFromCart(item.itemIdentifier)} // Use itemIdentifier here
+                    onClick={() => handleRemoveFromCart(item.itemIdentifier)}
                   >
                     Remove
                   </Button>
@@ -506,6 +486,10 @@ const QRCodePage = () => {
       <Button
         variant="dark"
         className="floating-toggle-btn"
+        style={{
+          zIndex: 1000,
+          pointerEvents: "auto", // allow button interaction
+        }}
         onClick={() =>
           showGoToCart
             ? cartRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -518,18 +502,19 @@ const QRCodePage = () => {
   );
 };
 
-// New MenuItemCard component to encapsulate item display logic
+// Memoized MenuItemCard for performance
 const MenuItemCard = ({ item, handleAddToCart }) => {
   const [selectedAddOns, setSelectedAddOns] = useState([]);
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
 
-  const handleAddOnChange = (addOn) => {
+  // Memoize add-on change handler
+  const handleAddOnChange = useCallback((addOn) => {
     setSelectedAddOns((prev) =>
       prev.some((ao) => ao.id === addOn.id)
         ? prev.filter((ao) => ao.id !== addOn.id)
         : [...prev, addOn]
     );
-  };
+  }, []);
 
   const currentItemPrice =
     item.price + selectedAddOns.reduce((sum, ao) => sum + ao.price, 0);
@@ -544,6 +529,7 @@ const MenuItemCard = ({ item, handleAddToCart }) => {
               imageId={item.image}
               className="img-fluid rounded"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              loading="lazy"
             />
           ) : (
             <img
@@ -551,6 +537,7 @@ const MenuItemCard = ({ item, handleAddToCart }) => {
               alt={item.name}
               className="img-fluid rounded"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              loading="lazy"
             />
           )}
         </div>
@@ -595,7 +582,7 @@ const MenuItemCard = ({ item, handleAddToCart }) => {
         <Accordion className="add-ons-accordion">
           <Accordion.Item eventKey="0">
             <Accordion.Header
-              onClick={() => setIsAccordionOpen(!isAccordionOpen)}
+              onClick={() => setIsAccordionOpen((open) => !open)}
             >
               {isAccordionOpen ? "Hide Add-ons" : "Show Add-ons"}
             </Accordion.Header>
@@ -620,5 +607,7 @@ const MenuItemCard = ({ item, handleAddToCart }) => {
     </Card>
   );
 };
+
+const MemoizedMenuItemCard = memo(MenuItemCard);
 
 export default QRCodePage;
