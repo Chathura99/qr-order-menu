@@ -474,7 +474,11 @@ const QRCodePage = () => {
             <Button
               variant="success"
               onClick={handlePlaceOrder}
-              disabled={cart.length === 0}
+              // disabled={cart.length === 0}
+              disabled={
+                cart.length === 0 ||
+                cart.some((item) => item.itemTotalPrice <= 0)
+              }
             >
               Place Order
             </Button>
@@ -545,7 +549,7 @@ const MenuItemCard = ({ item, handleAddToCart }) => {
           <h6 className="mb-1 fw-bold" style={{ fontSize: "0.8em" }}>
             {item.name}
           </h6>
-          <span style={{ fontFamily: 'Montserrat' }}>
+          <span style={{ fontFamily: "Montserrat" }}>
             <p className="text-muted mb-0" style={{ fontSize: "0.7em" }}>
               {item.description || "No description available."}
             </p>
