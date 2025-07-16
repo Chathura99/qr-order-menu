@@ -61,7 +61,7 @@ const FormLogo = styled.img`
 // Title: Styling for the main login title
 const Title = styled.h2`
   color: ${MAIN_COLOR}; /* Consistent orange color */
-  font-family: "Montserrat", sans-serif; /* Bolder font for titles */
+  font-family: "Montserrat"; /* Bolder font for titles */
   font-weight: 800; /* Extra bold */
   margin-bottom: 2.5rem; /* More space below title */
   font-size: 2.2rem; /* Larger font size */

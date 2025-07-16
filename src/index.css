@@ -5,13 +5,13 @@
 
 body {
   margin: 0;
-  font-family: 'Cooper BT', sans-serif !important;
+  font-family: 'Cooper BT' !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: 'Cooper BT', sans-serif !important;
+  font-family: 'Cooper BT'!important;
 }
 
 

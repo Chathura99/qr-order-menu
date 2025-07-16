@@ -545,7 +545,7 @@ const MenuItemCard = ({ item, handleAddToCart }) => {
           <h6 className="mb-1 fw-bold" style={{ fontSize: "0.8em" }}>
             {item.name}
           </h6>
-          <span style={{ fontFamily: "'Montserrat', sans-serif" }}>
+          <span style={{ fontFamily: 'Montserrat' }}>
             <p className="text-muted mb-0" style={{ fontSize: "0.7em" }}>
               {item.description || "No description available."}
             </p>
@@ -565,7 +565,7 @@ const MenuItemCard = ({ item, handleAddToCart }) => {
             className="fw-bold mb-1"
             style={{ fontSize: "0.7em", marginRight: "10px" }}
           >
-            {currentItemPrice ? `Rs ${currentItemPrice}` : "Free"}
+            {currentItemPrice ? `Rs ${currentItemPrice}` : "0"}
           </div>
           <Button
             variant="outline-warning"
