@@ -9,7 +9,8 @@ import {
   ListGroup,
   Button,
   Form,
-  Accordion, // Import Accordion
+  Accordion,
+  Modal, // Import Modal
 } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -286,53 +287,6 @@ const QRCodePage = () => {
         style={{ fontSize: "0.8rem", padding: "3px" }}
       />
       {/* Header Section */}
-      {/* <div className="header-section">
-        <div className="header-logo">
-          {homeData?.logo && (
-            <ImageLoader
-              imageId={homeData.logo}
-              altText="Company Logo"
-              className="company-logo mb-2"
-              style={{
-                width: "80px",
-                height: "80px",
-                maxWidth: "100%",
-                maxHeight: "100%",
-              }}
-              loading="lazy"
-            />
-          )}
-        </div>
-        <div className="header-details">
-          <h4
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              margin: 0,
-              fontSize: "20px",
-            }}
-          >
-            QuickDine - {homeData?.Name || ""}
-            <span
-              style={{
-                width: 24,
-                height: 24,
-                backgroundColor: "white",
-                color: "black",
-                borderRadius: "50%",
-                fontSize: 12,
-                fontWeight: "bold",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {tableData.table_number}
-            </span>
-          </h4>
-        </div>
-      </div> */}
       <div
         className="header-section"
         style={{
@@ -543,7 +497,6 @@ const QRCodePage = () => {
             <Button
               variant="success"
               onClick={handlePlaceOrder}
-              // disabled={cart.length === 0}
               disabled={
                 cart.length === 0 ||
                 cart.some((item) => item.itemTotalPrice <= 0)
@@ -579,6 +532,7 @@ const QRCodePage = () => {
 const MenuItemCard = ({ item, handleAddToCart }) => {
   const [selectedAddOns, setSelectedAddOns] = useState([]);
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false); // New state for modal visibility
 
   // Memoize add-on change handler
   const handleAddOnChange = useCallback((addOn) => {
@@ -593,91 +547,120 @@ const MenuItemCard = ({ item, handleAddToCart }) => {
     item.price + selectedAddOns.reduce((sum, ao) => sum + ao.price, 0);
 
   return (
-    <Card className="p-1 mb-0 menu-item-card">
-      <div className="d-flex flex-row align-items-center">
-        <div style={{ width: 90, height: 90, flexShrink: 0 }}>
+    <>
+      <Card className="p-1 mb-0 menu-item-card">
+        <div className="d-flex flex-row align-items-center">
+          <div
+            style={{ width: 90, height: 90, flexShrink: 0, cursor: "pointer" }} // Add cursor pointer to indicate clickability
+            onClick={() => setShowImageModal(true)} // Open modal on image click
+          >
+            {item.image ? (
+              <ImageLoader
+                altText={item.name}
+                imageId={item.image}
+                className="img-fluid rounded"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                loading="lazy"
+              />
+            ) : (
+              <img
+                src={demoFood}
+                alt={item.name}
+                className="img-fluid rounded"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                loading="lazy"
+              />
+            )}
+          </div>
+          <div className="px-3 flex-grow-1">
+            <h6 className="mb-1 fw-bold" style={{ fontSize: "0.8em" }}>
+              {item.name}
+            </h6>
+            <span style={{ fontFamily: "Montserrat" }}>
+              <p className="text-muted mb-0" style={{ fontSize: "0.7em" }}>
+                {item.description || "No description available."}
+              </p>
+            </span>
+            {item.labels && item.labels.length > 0 && (
+              <div className="item-labels">
+                {item.labels.map((label) => (
+                  <span key={label.labels_id.id} className="menu-item-label">
+                    {label.labels_id.label_name}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="text-end">
+            <div
+              className="fw-bold mb-1"
+              style={{ fontSize: "0.7em", marginRight: "10px" }}
+            >
+              {currentItemPrice ? `Rs ${currentItemPrice}` : "0"}
+            </div>
+            <Button
+              variant="outline-warning"
+              size="sm"
+              onClick={() => handleAddToCart(item, selectedAddOns)}
+              style={{ fontWeight: "bold", marginRight: "10px" }}
+            >
+              ADD
+            </Button>
+          </div>
+        </div>
+
+        {item.add_ons && item.add_ons.length > 0 && (
+          <Accordion className="add-ons-accordion">
+            <Accordion.Item eventKey="0">
+              <Accordion.Header
+                onClick={() => setIsAccordionOpen((open) => !open)}
+              >
+                {isAccordionOpen ? "Hide Add-ons" : "Show Add-ons"}
+              </Accordion.Header>
+              <Accordion.Body className="add-ons-body">
+                {item.add_ons.map((addOn) => (
+                  <Form.Check
+                    key={addOn.add_ons_id.id}
+                    type="checkbox"
+                    id={`addon-${item.id}-${addOn.add_ons_id.id}`}
+                    label={`${addOn.add_ons_id.name} (Rs ${addOn.add_ons_id.price})`}
+                    checked={selectedAddOns.some(
+                      (ao) => ao.id === addOn.add_ons_id.id
+                    )}
+                    onChange={() => handleAddOnChange(addOn.add_ons_id)}
+                    className="add-on-checkbox"
+                  />
+                ))}
+              </Accordion.Body>
+            </Accordion.Item>
+          </Accordion>
+        )}
+      </Card>
+
+      {/* Image Modal */}
+      <Modal show={showImageModal} onHide={() => setShowImageModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{item.name}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center">
           {item.image ? (
             <ImageLoader
-              altText={item.name}
               imageId={item.image}
-              className="img-fluid rounded"
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              loading="lazy"
+              altText={item.name}
+              className="img-fluid"
+                style={{ maxHeight: "70vh", maxWidth: "100%", objectFit: "contain" }}
             />
           ) : (
             <img
               src={demoFood}
               alt={item.name}
-              className="img-fluid rounded"
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              loading="lazy"
+              className="img-fluid"
+              style={{ maxHeight: "70vh", maxWidth: "100%", objectFit: "contain" }}
             />
           )}
-        </div>
-        <div className="px-3 flex-grow-1">
-          <h6 className="mb-1 fw-bold" style={{ fontSize: "0.8em" }}>
-            {item.name}
-          </h6>
-          <span style={{ fontFamily: "Montserrat" }}>
-            <p className="text-muted mb-0" style={{ fontSize: "0.7em" }}>
-              {item.description || "No description available."}
-            </p>
-          </span>
-          {item.labels && item.labels.length > 0 && (
-            <div className="item-labels">
-              {item.labels.map((label) => (
-                <span key={label.labels_id.id} className="menu-item-label">
-                  {label.labels_id.label_name}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-        <div className="text-end">
-          <div
-            className="fw-bold mb-1"
-            style={{ fontSize: "0.7em", marginRight: "10px" }}
-          >
-            {currentItemPrice ? `Rs ${currentItemPrice}` : "0"}
-          </div>
-          <Button
-            variant="outline-warning"
-            size="sm"
-            onClick={() => handleAddToCart(item, selectedAddOns)}
-            style={{ fontWeight: "bold", marginRight: "10px" }}
-          >
-            ADD
-          </Button>
-        </div>
-      </div>
-
-      {item.add_ons && item.add_ons.length > 0 && (
-        <Accordion className="add-ons-accordion">
-          <Accordion.Item eventKey="0">
-            <Accordion.Header
-              onClick={() => setIsAccordionOpen((open) => !open)}
-            >
-              {isAccordionOpen ? "Hide Add-ons" : "Show Add-ons"}
-            </Accordion.Header>
-            <Accordion.Body className="add-ons-body">
-              {item.add_ons.map((addOn) => (
-                <Form.Check
-                  key={addOn.add_ons_id.id}
-                  type="checkbox"
-                  id={`addon-${item.id}-${addOn.add_ons_id.id}`}
-                  label={`${addOn.add_ons_id.name} (Rs ${addOn.add_ons_id.price})`}
-                  checked={selectedAddOns.some(
-                    (ao) => ao.id === addOn.add_ons_id.id
-                  )}
-                  onChange={() => handleAddOnChange(addOn.add_ons_id)}
-                  className="add-on-checkbox"
-                />
-              ))}
-            </Accordion.Body>
-          </Accordion.Item>
-        </Accordion>
-      )}
-    </Card>
+        </Modal.Body>
+      </Modal>
+    </>
   );
 };
 
