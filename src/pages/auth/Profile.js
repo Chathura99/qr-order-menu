@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
-import { useTranslation } from 'react-i18next';
-import directusClient from '../../api/directusClient';
-import Sidebar from '../../components/Sidebar';
+import React, { useState, useEffect } from "react";
+import { Container, Row, Col, Form, Button, Alert } from "react-bootstrap";
+import { useTranslation } from "react-i18next";
+import directusClient from "../../api/directusClient";
+import Sidebar from "../../components/Sidebar";
 import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
@@ -14,13 +14,11 @@ const Profile = () => {
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
 
-
-
   useEffect(() => {
     const fetchUserProfile = async () => {
       setLoading(true);
       try {
-        const response = await directusClient.get('/users/me');
+        const response = await directusClient.get("/users/me");
         setUser(response.data.data);
         setFormData({
           first_name: response.data.data.first_name,
@@ -30,7 +28,7 @@ const Profile = () => {
         setError(null);
       } catch (err) {
         navigate("/login");
-        setError('Failed to fetch user profile');
+        setError("Failed to fetch user profile");
       } finally {
         setLoading(false);
       }
@@ -53,12 +51,12 @@ const Profile = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await directusClient.patch('/users/me', formData);
+      await directusClient.patch("/users/me", formData);
       setUser((prevUser) => ({ ...prevUser, ...formData }));
       setIsEditing(false);
       setError(null);
     } catch (err) {
-      setError('Failed to update profile');
+      setError("Failed to update profile");
     } finally {
       setLoading(false);
     }
@@ -67,29 +65,36 @@ const Profile = () => {
   if (loading) return <div>Loading...</div>;
   if (error) return <Alert variant="danger">Error: {error}</Alert>;
 
-  const userRole = localStorage.getItem('user_role') || 'guest';
-
+  const userRole = localStorage.getItem("user_role") || "guest";
 
   return (
     <Container fluid>
-      <Row>
-        <Col md={2} className="p-3">
+      <Row style={{ marginLeft: "200px" }}>
+        <Col md={1} className="p-3">
           <Sidebar role={userRole} />
         </Col>
         <Col md={10} className="p-3">
           <div className="p-4 border rounded bg-white shadow-sm">
-            <h1 className="text-center mb-4">{t('profile.title')}</h1>
+            <h1 className="text-center mb-4">{t("profile.title")}</h1>
             {user && !isEditing ? (
               <div>
-                <p><strong>{t('profile.firstName')}:</strong> {user.first_name}</p>
-                <p><strong>{t('profile.lastName')}:</strong> {user.last_name}</p>
-                <p><strong>{t('profile.email')}:</strong> {user.email}</p>
-                <Button variant="secondary" onClick={handleEditClick}>{t('profile.edit')}</Button>
+                <p>
+                  <strong>{t("profile.firstName")}:</strong> {user.first_name}
+                </p>
+                <p>
+                  <strong>{t("profile.lastName")}:</strong> {user.last_name}
+                </p>
+                <p>
+                  <strong>{t("profile.email")}:</strong> {user.email}
+                </p>
+                <Button variant="secondary" onClick={handleEditClick}>
+                  {t("profile.edit")}
+                </Button>
               </div>
             ) : (
               <Form onSubmit={handleSave}>
                 <Form.Group className="mb-3">
-                  <Form.Label>{t('profile.firstName')}</Form.Label>
+                  <Form.Label>{t("profile.firstName")}</Form.Label>
                   <Form.Control
                     type="text"
                     name="first_name"
@@ -99,7 +104,7 @@ const Profile = () => {
                   />
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label>{t('profile.lastName')}</Form.Label>
+                  <Form.Label>{t("profile.lastName")}</Form.Label>
                   <Form.Control
                     type="text"
                     name="last_name"
@@ -109,7 +114,7 @@ const Profile = () => {
                   />
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label>{t('profile.email')}</Form.Label>
+                  <Form.Label>{t("profile.email")}</Form.Label>
                   <Form.Control
                     type="email"
                     name="email"
@@ -119,14 +124,14 @@ const Profile = () => {
                   />
                 </Form.Group>
                 <Button variant="primary" type="submit" disabled={loading}>
-                  {loading ? `${t('profile.save')}...` : t('profile.save')}
+                  {loading ? `${t("profile.save")}...` : t("profile.save")}
                 </Button>
                 <Button
                   variant="secondary"
                   onClick={() => setIsEditing(false)}
                   className="ms-2"
                 >
-                  {t('profile.cancel')}
+                  {t("profile.cancel")}
                 </Button>
               </Form>
             )}

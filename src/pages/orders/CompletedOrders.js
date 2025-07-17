@@ -143,8 +143,8 @@ const CompletedOrders = () => {
   return (
     <>
       <Container fluid>
-        <Row>
-          <Col md={2} className="p-3 d-none d-md-block">
+        <Row style={{ marginLeft: "200px" }}>
+          <Col md={1} className="p-3 d-none d-md-block">
             <Sidebar role={userRole} />
           </Col>
           <Col
@@ -281,8 +281,8 @@ const CompletedOrders = () => {
                                   {item.selected_add_ons.map(
                                     (addOn, addOnIndex) => (
                                       <li key={addOnIndex}>
-                                        {addOn.name} (
-                                        {addOn.price.toFixed(2)} LKR)
+                                        {addOn.name} ({addOn.price.toFixed(2)}{" "}
+                                        LKR)
                                       </li>
                                     )
                                   )}

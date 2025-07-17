@@ -68,7 +68,7 @@ const Dashboard = () => {
     <>
       <Container fluid>
         
-        <Row>
+        <Row style={{marginLeft :"200px"}}>
           <Col md={1} className="p-3 d-none d-md-block">
             <Sidebar role={userRole} />
           </Col>

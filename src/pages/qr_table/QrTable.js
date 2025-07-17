@@ -233,9 +233,9 @@ const QrTable = () => {
   return (
     <>
       <Container fluid className="qr-table-page-container">
-        <Row>
+        <Row style={{ marginLeft: "200px" }}>
           {/* Sidebar Column */}
-          <Col md={2} className="d-none d-md-block">
+          <Col md={1} className="d-none d-md-block">
             <Sidebar role={userRole} />
           </Col>
 

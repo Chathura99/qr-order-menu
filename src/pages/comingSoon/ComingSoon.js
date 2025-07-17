@@ -10,8 +10,8 @@ const ComingSoon = ({ featureName = "This feature" }) => {
 
   return (
     <Container fluid>
-      <Row>
-        <Col md={2} className="p-3">
+      <Row style={{ marginLeft: "200px" }}>
+        <Col md={1} className="p-3">
           <Sidebar role={userRole} />
         </Col>
         <Col md={10} className="p-3">
