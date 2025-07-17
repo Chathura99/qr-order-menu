@@ -71,8 +71,8 @@ const SidebarHeader = styled.h2`
   color: white;
   text-align: center;
   font-weight: bold;
-  margin-bottom: 40px;
-  font-size: ${(props) => (props.$isCollapsed ? "1.2em" : "1.8em")};
+  margin-bottom: 20px;
+  font-size: ${(props) => (props.$isCollapsed ? "1em" : "1.4em")};
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -83,13 +83,13 @@ const SidebarHeader = styled.h2`
 const SidebarLink = styled(Nav.Link)`
   display: flex;
   align-items: center;
-  padding: 12px 20px;
+  padding: 10px 10px;
   color: white;
   font-weight: 500;
   transition: background-color 0.3s, color 0.3s, padding 0.3s;
   text-decoration: none;
   border-radius: 8px; /* Slightly rounded */
-  margin: 0 10px 5px 10px; /* Margin for separation */
+  margin: 0 10px; /* Margin for separation */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -136,7 +136,7 @@ const Footer = styled.footer`
   text-align: center;
   color:rgb(255, 255, 255); /* Muted grey color */
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.7rem;
   line-height: 1.5;
 
   strong {

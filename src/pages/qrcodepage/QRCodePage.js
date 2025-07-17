@@ -286,7 +286,7 @@ const QRCodePage = () => {
         style={{ fontSize: "0.8rem", padding: "3px" }}
       />
       {/* Header Section */}
-      <div className="header-section">
+      {/* <div className="header-section">
         <div className="header-logo">
           {homeData?.logo && (
             <ImageLoader
@@ -310,7 +310,7 @@ const QRCodePage = () => {
               alignItems: "center",
               gap: "8px",
               margin: 0,
-              fontSize: "15px",
+              fontSize: "20px",
             }}
           >
             QuickDine - {homeData?.Name || ""}
@@ -331,6 +331,64 @@ const QRCodePage = () => {
               {tableData.table_number}
             </span>
           </h4>
+        </div>
+      </div> */}
+      <div
+        className="header-section"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "20px",
+        }}
+      >
+        {/* Logo Left */}
+        <div className="header-logo" style={{ flex: "0 0 auto" }}>
+          {homeData?.logo && (
+            <ImageLoader
+              imageId={homeData.logo}
+              altText="Company Logo"
+              className="company-logo mb-2"
+              style={{
+                width: "80px",
+                height: "80px",
+                maxWidth: "100%",
+                maxHeight: "100%",
+              }}
+              loading="lazy"
+            />
+          )}
+        </div>
+
+        {/* Name Center */}
+        <div
+          className="header-details"
+          style={{ flex: "1", textAlign: "center" }}
+        >
+          <h4 style={{ marginLeft: "15px", fontSize: "18px" }}>
+            QuickDine - {homeData?.Name || ""}
+          </h4>
+        </div>
+
+        {/* Table Right */}
+        <div style={{ flex: "0 0 auto" }}>
+          <span
+            style={{
+              width: 32,
+              height: 32,
+              backgroundColor: "white",
+              color: "black",
+              borderRadius: "50%",
+              fontSize: 14,
+              fontWeight: "bold",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              border: "1px solid #ccc",
+            }}
+          >
+            {tableData.table_number}
+          </span>
         </div>
       </div>
       <div className="container mt-4 main-content-area">
@@ -470,6 +528,17 @@ const QRCodePage = () => {
               ))}
             </ListGroup>
           )}
+          {/* Cart Total */}
+          <div className="mt-3 text-end fw-bold">
+            Total: Rs{" "}
+            {cart
+              .reduce(
+                (total, item) => total + item.itemTotalPrice * item.qty,
+                0
+              )
+              .toFixed(2)}
+          </div>
+
           <div className="text-end mt-3">
             <Button
               variant="success"

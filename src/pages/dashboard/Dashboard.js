@@ -67,14 +67,15 @@ const Dashboard = () => {
   return (
     <>
       <Container fluid>
+        
         <Row>
-          <Col md={2} className="p-3 d-none d-md-block">
+          <Col md={1} className="p-3 d-none d-md-block">
             <Sidebar role={userRole} />
           </Col>
           <Col
             md={10}
             className="p-3"
-            style={{ overflowY: "auto", maxHeight: "calc(100vh - 50px)" }}
+            style={{  maxHeight: "calc(100vh - 50px)" }}
           >
             <Card className="p-3 mb-4 d-flex justify-content-between align-items-center">
               <h1 className="mb-0">Order Dashboard</h1>
